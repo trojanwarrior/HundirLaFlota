@@ -26,8 +26,9 @@
 
 #include "GameState.h"
 
-#define STAGE 1 << 0 // mascara para el escenario
-#define BARCO 1 << 1 // mascara para un barco, en realidad será una casilla donde haya un trozo de barco
+#define STAGE   1 << 0 // mascara para el escenario
+#define BARCO   1 << 1 // mascara para un barco, en realidad será una casilla donde haya un trozo de barco
+#define CASILLA 1 << 2
 
 
 class IntroState : public Ogre::Singleton<IntroState>, public GameState
@@ -79,7 +80,11 @@ class IntroState : public Ogre::Singleton<IntroState>, public GameState
   Ogre::Vector3 _vtBarco;
   Ogre::Real _tSpeed;                              //Distancia en unidades del mundo virtual que queremos recorrer en un segundo cuando movamos cositas
   int _r; // para rotar sobre eje Y al barquito
-
+  float _rotCamarax;
+  float _rotCamaray;
+  RaySceneQuery *_raySceneQuery;
+  Ray setRayQuery(int posx, int posy, uint32 mask);
+  SceneNode *_selectedNode;
 
 };
 

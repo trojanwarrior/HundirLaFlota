@@ -15,12 +15,6 @@ void IntroState::enter ()
 
 
   _camera = _sceneMgr->createCamera ("IntroCamera");
-  //_camera->setPosition (Vector3 (0.72, 11.0, -20.37));
-  _camera->setPosition (Vector3 (0.0, 11.0, -20.37));
-  _camera->lookAt (Vector3 (-3.45, 1.45, 2.69));
-  _camera->setNearClipDistance (0.1);
-  _camera->setFarClipDistance (100);
-
 
   _viewport = _root->getAutoCreatedWindow()->addViewport(_camera);
   //_viewport = _renderWindow->addViewport (_camera);
@@ -40,6 +34,18 @@ void IntroState::enter ()
   createScene ();
   //Gui
   createGUI ();
+  
+  //_camera->setPosition (Vector3 (0.72, 11.0, -20.37));
+  _camera->setPosition (Vector3 (4.42, 10.34, -18.22));
+  _camera->lookAt (_sceneMgr->getSceneNode("Barquito")->getPosition());
+  //_camera->lookAt (Vector3 (-3.45, 1.45, 2.69));
+  _camera->setNearClipDistance (0.1);
+  _camera->setFarClipDistance (100);
+  
+  
+  _raySceneQuery = _sceneMgr->createRayQuery(Ogre::Ray());
+  _selectedNode = NULL;
+
  
   _exitGame = false;
   _tSpeed = 10.0;                              //Distancia en unidades del mundo virtual que queremos recorrer en un segundo cuando movamos cositas
@@ -85,6 +91,7 @@ IntroState::createScene ()
   tablero->build ();
 
   //Objeto movable "suelo" para consultar al sceneManager
+
   SceneNode *nodeTableroCol = _sceneMgr->createSceneNode ("tableroCol");
   Entity *entTableroCol = _sceneMgr->createEntity ("entTableroCol", "tableroCol.mesh");
   entTableroCol->setQueryFlags (STAGE);
@@ -92,19 +99,33 @@ IntroState::createScene ()
   nodeTableroCol->setVisible (false);
   _sceneMgr->getRootSceneNode ()->addChild (nodeTableroCol);
 
-  //Casillas invisibles para hacer las consultas por RayQuery
+
+  //Casillas normales y casillas invisibles para hacer las consultas por RayQuery
   stringstream sauxnode;
-  string s = "Casilla_col";
-  for (int i = 0; i < 100; i++)
+  string s = "Casilla_col_";
+  string x = "Casilla_";
+  for (int i = 0; i < 10; i++)
   {
-    sauxnode << s << i;
-    SceneNode *nodeCasillaCol = _sceneMgr->createSceneNode (sauxnode.str ());
-    Entity *entCasillaCol = _sceneMgr->createEntity (sauxnode.str (), "CasillaCol.mesh");
-    entCasillaCol->setQueryFlags (STAGE);
-    nodeCasillaCol->attachObject (entCasillaCol);
-    nodeCasillaCol->setVisible (false);
-    nodeTableroCol->addChild (nodeCasillaCol);
-    sauxnode.str ("");
+        sauxnode << s << i;
+        SceneNode *nodeCasillaCol = _sceneMgr->createSceneNode (sauxnode.str ());
+        Entity *entCasillaCol = _sceneMgr->createEntity (sauxnode.str (), "CasillaCol.mesh");
+        entCasillaCol->setQueryFlags(STAGE);
+        nodeCasillaCol->attachObject(entCasillaCol);
+        nodeCasillaCol->setVisible(false);
+        
+        sauxnode << x << i;
+        SceneNode *nodeCasilla = _sceneMgr->createSceneNode(sauxnode.str());
+        Entity *entCasilla = _sceneMgr->createEntity(sauxnode.str(), "Casilla.mesh");
+        entCasilla->setQueryFlags(CASILLA);
+        nodeCasilla->attachObject(entCasilla);
+        
+        nodeTableroCol->addChild (nodeCasillaCol);
+        nodeTableroCol->addChild (nodeCasilla);
+        int posX = i % 10;
+        int posY = i / 10;
+        nodeCasilla->setPosition(Vector3(posX,posY,nodeCasilla->getPosition().z));
+        nodeCasillaCol->setPosition(Vector3(posX,posY,nodeCasillaCol->getPosition().z));
+        sauxnode.str ("");
   }
 
   // Comentario referente a la exportación de Blender a Ogre:
@@ -134,7 +155,7 @@ IntroState::createScene ()
 }
 
 //Quit del GUI
-bool IntroState::quit (const CEGUI::EventArgs &e)
+bool IntroState::quit(const CEGUI::EventArgs &e)
 {
   _exitGame = true;
   return true;
@@ -172,12 +193,16 @@ bool IntroState::frameStarted(const Ogre::FrameEvent& evt)
   _sceneMgr->getSceneNode("Barquito")->yaw(Ogre::Degree(_r * _deltaT));
 
   _mecer = _mecer % 10;
-  std::cout << _mecer << endl;
+  //std::cout << _mecer << endl;
   if (!_mecer)
       _mecer *= -1;
   //_sceneMgr->getSceneNode("Barquito")->roll(Ogre::Degree(Ogre::Math::Sin((_mecer * _deltaT),true)));
   _sceneMgr->getSceneNode("Barquito")->roll(Ogre::Degree(_mecer * _deltaT));
   _mecer++;
+  
+  //_camera->yaw(Radian(_rotCamarax));
+  //_camera->pitch(Radian(_rotCamaray));
+
   
   return true;
 }
@@ -211,8 +236,7 @@ void IntroState::keyPressed(const OIS::KeyEvent &e)
     case OIS::KC_D:	_vtBarco+=Vector3(-1,0,0); break;
     case OIS::KC_W:	_vtBarco+=Vector3(0,0,1);  break;
     default:   	cout << "VTBarco " << _vtBarco << endl;
-		cout << "VTCamara " << _vtCamara << endl;
-
+                cout << "VTCamara " << _vtCamara << endl;
   }
 
   
@@ -242,6 +266,37 @@ void IntroState::keyReleased(const OIS::KeyEvent &e )
 void IntroState::mouseMoved(const OIS::MouseEvent &e)
 {
   CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseMove(e.state.X.rel, e.state.Y.rel);  
+/*
+   _rotCamarax = e.state.X.rel * _deltaT * -1;
+   _rotCamaray = e.state.Y.rel * _deltaT * -1;
+   _camera->yaw(Radian(_rotCamarax));
+   _camera->pitch(Radian(_rotCamaray));
+*/   
+  
+    Ray r = setRayQuery(posx, posy, mask);
+    RaySceneQueryResult &result = _raySceneQuery->execute();
+    RaySceneQueryResult::iterator it;
+    it = result.begin();
+    if (it != result.end()) 
+    {
+			if (it->movable->getParentSceneNode()->getName() == "CasillaCol_") 
+			{
+			  SceneNode *nodeaux = _sceneManager->createSceneNode();
+			  int i = rand()%2;   std::stringstream saux;
+			  saux << "Cube" << i+1 << ".mesh";
+			  Entity *entaux = _sceneManager->createEntity(saux.str());
+			  entaux->setQueryFlags(i?CUBE1:CUBE2);
+			  nodeaux->attachObject(entaux);
+			  nodeaux->translate(r.getPoint(it->distance));
+			  _sceneManager->getRootSceneNode()->addChild(nodeaux);
+			}
+      _selectedNode = it->movable->getParentSceneNode();
+      _selectedNode->showBoundingBox(true);
+    }
+  }
+   
+   
+
 }
 
 void IntroState::mousePressed(const OIS::MouseEvent &e, OIS::MouseButtonID id)
@@ -255,13 +310,15 @@ void IntroState::mousePressed(const OIS::MouseEvent &e, OIS::MouseButtonID id)
    if (id == OIS::MB_Middle)
    {
      cout << "se ha presionado el boton central" << endl;
-     //float rotx = _mouse->getMouseState().X.rel * deltaT * -1;
-     //float roty = _mouse->getMouseState().Y.rel * deltaT * -1;
-     float rotx = e.state.X.rel * _deltaT * -1;
-     float roty = e.state.Y.rel * _deltaT * -1;
-     
-     _camera->yaw(Radian(rotx));
-     _camera->pitch(Radian(roty));
+     //float rotx = e.state.X.rel * _deltaT * -1;
+     //float roty = e.state.Y.rel * _deltaT * -1;
+     _rotCamarax = e.state.X.abs * _deltaT * -1;
+     _rotCamaray = e.state.Y.abs * _deltaT * -1;
+     std::cout << "STATE REL: RotX[" <<_rotCamarax << "],RotY[" << _rotCamaray << "]" << endl;
+     std::cout << "STATE ABS: [" <<e.state.X.abs << "],RotY[" << e.state.Y.abs<< "]" << endl;
+     std::cout << "Posicion camara: " << _camera->getPosition() << endl;
+     //_camera->yaw(Radian(_rotCamarax));
+     //_camera->pitch(Radian(_rotCamaray));
    }
 
 }
@@ -269,6 +326,12 @@ void IntroState::mousePressed(const OIS::MouseEvent &e, OIS::MouseButtonID id)
 void IntroState::mouseReleased(const OIS::MouseEvent &e, OIS::MouseButtonID id)
 {
   CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonUp(convertirBotonMouse(id));
+  
+   if (id == OIS::MB_Middle)
+   {
+     _rotCamarax = 0.0;
+     _rotCamaray = 0.0;
+   }
 }
 
 IntroState* IntroState::getSingletonPtr ()
@@ -293,3 +356,14 @@ CEGUI::MouseButton IntroState::convertirBotonMouse(OIS::MouseButtonID id)
     default: 			    cout<< "boton izquierdo" << endl; return CEGUI::LeftButton;
   }
 }
+
+Ray IntroState::setRayQuery(int posx, int posy, uint32 mask) {
+  Ray rayMouse = _camera->getCameraToViewportRay(posx/float(_root->getAutoCreatedWindow()->getWidth()), 
+                                                 posy/float(_root->getAutoCreatedWindow()->getHeight()));
+  _raySceneQuery->setRay(rayMouse);
+  _raySceneQuery->setSortByDistance(true);
+  _raySceneQuery->setQueryMask(mask);
+  return (rayMouse);
+}
+
+
