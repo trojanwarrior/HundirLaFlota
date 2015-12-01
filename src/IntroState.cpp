@@ -36,8 +36,13 @@ void IntroState::enter ()
   createGUI ();
   
   //_camera->setPosition (Vector3 (0.72, 11.0, -20.37));
-  _camera->setPosition (Vector3 (4.42, 10.34, -18.22));
+  //_camera->setPosition (Vector3 (4.42, 10.34, -18.22));
+  _camera->setPosition (Vector3 (0,12,17));
   _camera->lookAt (_sceneMgr->getSceneNode("Barquito")->getPosition());
+  _camera->yaw(Degree(0));
+  _camera->pitch(Degree(0));
+  _camera->roll(Degree(0));
+
   //_camera->lookAt (Vector3 (-3.45, 1.45, 2.69));
   _camera->setNearClipDistance (0.1);
   _camera->setFarClipDistance (100);
@@ -55,7 +60,7 @@ void IntroState::enter ()
 void
 IntroState::createGUI ()
 {
-  _renderer = &CEGUI::OgreRenderer::bootstrapSystem ();
+  _renderer = &CEGUI::OgreRenderer::bootstrapSystem();
   CEGUI::Scheme::setDefaultResourceGroup ("Schemes");
   CEGUI::ImageManager::setImagesetDefaultResourceGroup ("Imagesets");
   CEGUI::Font::setDefaultResourceGroup ("Fonts");
@@ -65,7 +70,12 @@ IntroState::createGUI ()
   CEGUI::SchemeManager::getSingleton ().createFromFile ("TaharezLook.scheme");
   CEGUI::System::getSingleton ().getDefaultGUIContext ().setDefaultFont ("DejaVuSans-12");
   CEGUI::System::getSingleton ().getDefaultGUIContext ().getMouseCursor ().setDefaultImage ("TaharezLook/MouseArrow");
-
+  
+  //PARCHEO RATÓN CEGUI: para que al inicio se encuentre en la misma posicion que el raton de OIS
+  // Move CEGUI mouse to (0,0)                                        
+  CEGUI::Vector2f mousePos = CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().getPosition();
+  CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseMove(-mousePos.d_x,-mousePos.d_y);
+ 
   //Sheet
   CEGUI::Window* sheet = CEGUI::WindowManager::getSingleton ().createWindow ("DefaultWindow","Ex1/Sheet");
 
@@ -78,56 +88,70 @@ IntroState::createGUI ()
 
   //Attaching buttons
   sheet->addChild (quitButton);
-  CEGUI::System::getSingleton ().getDefaultGUIContext ().setRootWindow (sheet);
+  CEGUI::System::getSingleton().getDefaultGUIContext ().setRootWindow (sheet);
 
 }
 
 void
 IntroState::createScene ()
 {
+ /* 
   StaticGeometry *tablero = _sceneMgr->createStaticGeometry ("Tablero");
   Entity *entTablero = _sceneMgr->createEntity ("tablero.mesh");
   tablero->addEntity (entTablero, Vector3 (0, 0, 0)); // Añadir la entidad a tablero siempre antes de llamar a build()
   tablero->build ();
-
+*/
+  
   //Objeto movable "suelo" para consultar al sceneManager
-
-  SceneNode *nodeTableroCol = _sceneMgr->createSceneNode ("tableroCol");
-  Entity *entTableroCol = _sceneMgr->createEntity ("entTableroCol", "tableroCol.mesh");
-  entTableroCol->setQueryFlags (STAGE);
-  nodeTableroCol->attachObject (entTableroCol);
-  nodeTableroCol->setVisible (false);
-  _sceneMgr->getRootSceneNode ()->addChild (nodeTableroCol);
+  SceneNode *nodeTableroCol = _sceneMgr->createSceneNode("tableroCol");
+  Entity *entTableroCol = _sceneMgr->createEntity("entTableroCol", "tableroCol.mesh");
+  entTableroCol->setQueryFlags(STAGE);
+  nodeTableroCol->attachObject(entTableroCol);
+  nodeTableroCol->setVisible(true);
+  _sceneMgr->getRootSceneNode()->addChild(nodeTableroCol);
+  //nodeTableroCol->setPosition(nodeTableroCol->getPosition().x,-10,nodeTableroCol->getPosition().z);
 
 
   //Casillas normales y casillas invisibles para hacer las consultas por RayQuery
   stringstream sauxnode;
-  string s = "Casilla_col_";
+  string s = "CasillaCol_";
   string x = "Casilla_";
+  
+  Ogre::Real offsetX = 0.0;
+  Ogre::Real offsetY = 0.0;
+  Ogre::Real origen = -7.2;
   for (int i = 0; i < 10; i++)
   {
-        sauxnode << s << i;
+    offsetY = i * 0.6;
+    for (int j = 0; j < 10; j++)
+    {
+        offsetX = j * 0.6;
+        //if (i == 0 || j == 0) continue;
+        
+        sauxnode << s << i << "_" << j;
         SceneNode *nodeCasillaCol = _sceneMgr->createSceneNode (sauxnode.str ());
         Entity *entCasillaCol = _sceneMgr->createEntity (sauxnode.str (), "CasillaCol.mesh");
         entCasillaCol->setQueryFlags(STAGE);
         nodeCasillaCol->attachObject(entCasillaCol);
         nodeCasillaCol->setVisible(false);
+        nodeTableroCol->addChild (nodeCasillaCol);
         
-        sauxnode << x << i;
+        sauxnode << x << i << "_" << j;
         SceneNode *nodeCasilla = _sceneMgr->createSceneNode(sauxnode.str());
         Entity *entCasilla = _sceneMgr->createEntity(sauxnode.str(), "Casilla.mesh");
         entCasilla->setQueryFlags(CASILLA);
         nodeCasilla->attachObject(entCasilla);
-        
-        nodeTableroCol->addChild (nodeCasillaCol);
         nodeTableroCol->addChild (nodeCasilla);
-        int posX = i % 10;
-        int posY = i / 10;
-        nodeCasilla->setPosition(Vector3(posX,posY,nodeCasilla->getPosition().z));
-        nodeCasillaCol->setPosition(Vector3(posX,posY,nodeCasillaCol->getPosition().z));
-        sauxnode.str ("");
-  }
+        
+        nodeCasilla->setPosition(origen + j  + offsetX , nodeCasilla->getPosition().y+1, origen + i + offsetY);
+        nodeCasilla->setVisible(true);
+        nodeCasillaCol->setPosition(origen + j + offsetX, nodeCasillaCol->getPosition().y+1, origen + i + offsetY);
 
+        
+        sauxnode.str("");
+    }
+  }
+  
   // Comentario referente a la exportación de Blender a Ogre:
   // Hay que tener cuidado a la hora de exportar las figuras y tener claro
   // lo que se exporta. OgreToBlender exportará sólo la figura seleccionada
@@ -137,6 +161,7 @@ IntroState::createScene ()
   // bien si pretendemos usar los mismos materiales para distintas figuras.
   SceneNode *nodoBarquito = _sceneMgr->createSceneNode ("Barquito");
   Entity *entBarquito = _sceneMgr->createEntity ("barquito", "barquito.mesh");
+  entBarquito->setQueryFlags(BARCO);
   nodoBarquito->attachObject (entBarquito);
   _sceneMgr->getRootSceneNode ()->addChild (nodoBarquito);
 
@@ -165,6 +190,7 @@ bool IntroState::quit(const CEGUI::EventArgs &e)
 
 void IntroState::exit()
 {
+  _sceneMgr->destroyQuery(_raySceneQuery);
   _sceneMgr->clearScene();
   _root->getAutoCreatedWindow()->removeAllViewports();
 }
@@ -185,9 +211,11 @@ bool IntroState::frameStarted(const Ogre::FrameEvent& evt)
   //int fps = 1.0 / _deltaT;                              //Para calcular el rendimiento
 
   _camera->moveRelative(_vtCamara * _deltaT * _tSpeed);
+/*
   if (_camera->getPosition().length() < 10.0) {
     _camera->moveRelative(-_vtCamara * _deltaT * _tSpeed);
   }
+*/
 
   _sceneMgr->getSceneNode("Barquito")->translate(_vtBarco * _deltaT * _tSpeed, Ogre::Node::TS_PARENT);
   _sceneMgr->getSceneNode("Barquito")->yaw(Ogre::Degree(_r * _deltaT));
@@ -239,6 +267,7 @@ void IntroState::keyPressed(const OIS::KeyEvent &e)
                 cout << "VTCamara " << _vtCamara << endl;
   }
 
+  cout << _camera->getPosition() << endl;
   
   _r = 0;
   if(e.key == OIS::KC_R) _r+=180;
@@ -265,21 +294,38 @@ void IntroState::keyReleased(const OIS::KeyEvent &e )
 
 void IntroState::mouseMoved(const OIS::MouseEvent &e)
 {
-  CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseMove(e.state.X.rel, e.state.Y.rel);  
+  //CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseMove(e.state.X.rel, e.state.Y.rel);  
+  //CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseMove(e.state.X.abs,e.state.Y.abs);
+    
+  CEGUI::Vector2f mousePos = CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().getPosition();
+  cout << "PRE CEGUI: " << mousePos.d_x << "," << mousePos.d_y << endl;
+  cout << "OIS ABS: " << e.state.X.abs << "," << e.state.Y.abs << "     OIS REL: " << e.state.X.rel << "," << e.state.Y.rel << endl;
+  cout << "OIS State Width: " << e.state.width << "     State Height: " << e.state.height << endl;
+  CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().setPosition(CEGUI::Vector2f(e.state.X.abs,e.state.Y.abs));
+  CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseMove(mousePos.d_x/float(e.state.width), mousePos.d_y/float(e.state.height));
+  mousePos = CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().getPosition();
+  cout << "POST CEGUI: " << mousePos.d_x << "," << mousePos.d_y << endl;
+  
 /*
    _rotCamarax = e.state.X.rel * _deltaT * -1;
    _rotCamaray = e.state.Y.rel * _deltaT * -1;
    _camera->yaw(Radian(_rotCamarax));
    _camera->pitch(Radian(_rotCamaray));
 */   
-  
-    Ray r = setRayQuery(posx, posy, mask);
+
+
+    //uint32_t mask = CASILLA;
+    int posx = e.state.X.abs;
+    int posy = e.state.Y.abs;
+    //Ray r = setRayQuery(posx, posy, mask);
+    Ray r = setRayQuery(posx, posy, CASILLA);
     RaySceneQueryResult &result = _raySceneQuery->execute();
     RaySceneQueryResult::iterator it;
     it = result.begin();
     if (it != result.end()) 
     {
-			if (it->movable->getParentSceneNode()->getName() == "CasillaCol_") 
+/*
+			if (it->movable->getParentSceneNode()->getName() == "Col_Suelo") 
 			{
 			  SceneNode *nodeaux = _sceneManager->createSceneNode();
 			  int i = rand()%2;   std::stringstream saux;
@@ -290,10 +336,14 @@ void IntroState::mouseMoved(const OIS::MouseEvent &e)
 			  nodeaux->translate(r.getPoint(it->distance));
 			  _sceneManager->getRootSceneNode()->addChild(nodeaux);
 			}
+*/
+      
       _selectedNode = it->movable->getParentSceneNode();
       _selectedNode->showBoundingBox(true);
+      cout << _selectedNode->getName() << " POSICION_X " << _selectedNode->getPosition().x << endl; //<< "," << _selectedNode->getPosition().y <<
+                                                        //"," << _selectedNode->getPosition().z << endl;
     }
-  }
+
    
    
 
@@ -314,9 +364,6 @@ void IntroState::mousePressed(const OIS::MouseEvent &e, OIS::MouseButtonID id)
      //float roty = e.state.Y.rel * _deltaT * -1;
      _rotCamarax = e.state.X.abs * _deltaT * -1;
      _rotCamaray = e.state.Y.abs * _deltaT * -1;
-     std::cout << "STATE REL: RotX[" <<_rotCamarax << "],RotY[" << _rotCamaray << "]" << endl;
-     std::cout << "STATE ABS: [" <<e.state.X.abs << "],RotY[" << e.state.Y.abs<< "]" << endl;
-     std::cout << "Posicion camara: " << _camera->getPosition() << endl;
      //_camera->yaw(Radian(_rotCamarax));
      //_camera->pitch(Radian(_rotCamaray));
    }
@@ -358,6 +405,7 @@ CEGUI::MouseButton IntroState::convertirBotonMouse(OIS::MouseButtonID id)
 }
 
 Ray IntroState::setRayQuery(int posx, int posy, uint32 mask) {
+
   Ray rayMouse = _camera->getCameraToViewportRay(posx/float(_root->getAutoCreatedWindow()->getWidth()), 
                                                  posy/float(_root->getAutoCreatedWindow()->getHeight()));
   _raySceneQuery->setRay(rayMouse);
