@@ -26,12 +26,15 @@
 
 #include "GameState.h"
 
-#define ONEPLAYER 0
+#define STAGE   1 << 0 // mascara para el escenario
+#define BARCO   1 << 1 // mascara para un barco, en realidad será una casilla donde haya un trozo de barco
+#define CASILLA 1 << 2
+
 
 class IntroState : public Ogre::Singleton<IntroState>, public GameState
 {
  public:
-  IntroState() {}
+  IntroState() {};
 
   void enter ();
   void exit ();
@@ -48,26 +51,41 @@ class IntroState : public Ogre::Singleton<IntroState>, public GameState
   bool frameStarted (const Ogre::FrameEvent& evt);
   bool frameEnded (const Ogre::FrameEvent& evt);
 
+  //Quit del GUI
+  bool quit(const CEGUI::EventArgs &e);
+
+
   // Heredados de Ogre::Singleton.
   static IntroState& getSingleton ();
   static IntroState* getSingletonPtr ();
-  
-  CEGUI::MouseButton convertirBotonMouse(OIS::MouseButtonID id);
 
  protected:
   Ogre::Root* _root;
   Ogre::SceneManager* _sceneMgr;
   Ogre::Viewport* _viewport;
   Ogre::Camera* _camera;
-  CEGUI::OgreRenderer* _rendererCEGUI;
-  CEGUI::Event::Connection _conexionSubscriptorCegui;
-  
-  void createGui();
-  bool quit(const CEGUI::EventArgs &e);
-  bool OnePlayer(const CEGUI::EventArgs &e);
+  CEGUI::OgreRenderer* _renderer;
+  Ogre::Real _deltaT;
+
+  void createGUI();
+  void createScene();
+
+  CEGUI::MouseButton convertirBotonMouse(OIS::MouseButtonID id);
 
   bool _exitGame;
-  bool _cambiandoEstado;
+
+ private:
+  int _mecer;
+  Ogre::Vector3 _vtCamara;                           //Vector de traslación, en principio no se para que lo voy a usar
+  Ogre::Vector3 _vtBarco;
+  Ogre::Real _tSpeed;                              //Distancia en unidades del mundo virtual que queremos recorrer en un segundo cuando movamos cositas
+  int _r; // para rotar sobre eje Y al barquito
+  float _rotCamarax;
+  float _rotCamaray;
+  RaySceneQuery *_raySceneQuery;
+  Ray setRayQuery(int posx, int posy, uint32 mask);
+  SceneNode *_selectedNode;
+
 };
 
 #endif

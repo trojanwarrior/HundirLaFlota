@@ -31,18 +31,18 @@
   <VirtualDirectory Name="src">
     <File Name="src/GameManager.cpp"/>
     <File Name="src/InputManager.cpp"/>
-    <File Name="src/IntroState.cpp"/>
     <File Name="src/main.cpp"/>
     <File Name="src/PauseState.cpp"/>
     <File Name="src/PlayState.cpp"/>
+    <File Name="src/IntroState.cpp"/>
   </VirtualDirectory>
   <VirtualDirectory Name="include">
     <File Name="include/GameManager.h"/>
     <File Name="include/GameState.h"/>
     <File Name="include/InputManager.h"/>
-    <File Name="include/IntroState.h"/>
     <File Name="include/PauseState.h"/>
     <File Name="include/PlayState.h"/>
+    <File Name="include/IntroState.h"/>
   </VirtualDirectory>
   <Dependencies Name="Debug"/>
   <Dependencies Name="Release"/>
