@@ -71,8 +71,7 @@ GameManager::changeState(GameState* state)
   _states.top ()->enter ();
 }
 
-void
-GameManager::pushState(GameState* state)
+void GameManager::pushState(GameState* state)
 {
   // Pausa del estado actual.
   if (!_states.empty ())
@@ -84,8 +83,7 @@ GameManager::pushState(GameState* state)
   _states.top ()->enter ();
 }
 
-void
-GameManager::popState()
+void GameManager::popState()
 {
   // Limpieza del estado actual.
   if (!_states.empty ())

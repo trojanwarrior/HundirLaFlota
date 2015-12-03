@@ -33,8 +33,7 @@
 using namespace Ogre;
 using namespace std;
 
-class GameState;
-// <----- Declaración en avanzada de la clase GameState (Forward declaration)
+class GameState; // <----- Declaración en avanzada de la clase GameState (Forward declaration)
 //La declaración avanzada de la clase GameState es para evitar referencias circulares entre clases y así el compilador
 //pueda compilar sin dar error. Es decir, la clase GameManager hace uso de la clase Gamestate y la clase GameState hace
 //uso de la clase GameManager provocando una referencia circular que hace que el compilador falle al intentar compilar.

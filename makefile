@@ -20,7 +20,7 @@ CXXFLAGS := -I$(DIRHEA) -I$(DIRHEACEGUI1) -I$(DIRHEACEGUI2) -Wall `pkg-config --
 
 # Flags del linker ---------------------------------------------------
 LDFLAGS := `pkg-config --libs-only-L OGRE`
-LDLIBS := `pkg-config --libs-only-l gl OIS OGRE` -lstdc++ -lboost_system -l$(LIBCEGUIBASE) -l$(LIBCEGUIOGRERENDERER)
+LDLIBS := `pkg-config --libs-only-l gl OIS OGRE xerces-c` -lstdc++ -lboost_system -l$(LIBCEGUIBASE) -l$(LIBCEGUIOGRERENDERER)
 
 # Modo de compilación (-mode=release -mode=debug) --------------------
 ifeq ($(mode), release) 

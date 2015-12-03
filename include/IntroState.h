@@ -60,14 +60,25 @@ class IntroState : public Ogre::Singleton<IntroState>, public GameState
   Ogre::Viewport* _viewport;
   Ogre::Camera* _camera;
   CEGUI::OgreRenderer* _rendererCEGUI;
-  CEGUI::Event::Connection _conexionSubscriptorCegui;
   
   void createGui();
   bool quit(const CEGUI::EventArgs &e);
   bool OnePlayer(const CEGUI::EventArgs &e);
+  bool TwoPlayer(const CEGUI::EventArgs &e);
+  bool Record(const CEGUI::EventArgs &e);
 
   bool _exitGame;
   bool _cambiandoEstado;
+  
+  enum estadoSwitch
+  {
+      one_player,
+      two_player,
+      records  
+  };
+
+  estadoSwitch  _switchState;
+  
 };
 
 #endif

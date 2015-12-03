@@ -35,6 +35,8 @@
     <File Name="src/PauseState.cpp"/>
     <File Name="src/PlayState.cpp"/>
     <File Name="src/IntroState.cpp"/>
+    <File Name="src/RecordsState.cpp"/>
+    <File Name="src/GetRecords.cpp"/>
   </VirtualDirectory>
   <VirtualDirectory Name="include">
     <File Name="include/GameManager.h"/>
@@ -43,6 +45,8 @@
     <File Name="include/PauseState.h"/>
     <File Name="include/PlayState.h"/>
     <File Name="include/IntroState.h"/>
+    <File Name="include/RecordsState.h"/>
+    <File Name="include/GetRecords.h"/>
   </VirtualDirectory>
   <Dependencies Name="Debug"/>
   <Dependencies Name="Release"/>

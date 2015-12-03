@@ -1,5 +1,6 @@
 #include "IntroState.h"
 #include "PlayState.h"
+#include "RecordsState.h"
 
 template<> IntroState* Ogre::Singleton<IntroState>::msSingleton = 0;
 
@@ -32,7 +33,7 @@ void IntroState::createGui()
   CEGUI::SchemeManager::getSingleton ().createFromFile ("TaharezLook.scheme");
     
   CEGUI::System::getSingleton ().getDefaultGUIContext ().setDefaultFont ("DejaVuSans-12");
-  CEGUI::System::getSingleton ().getDefaultGUIContext ().getMouseCursor ().setDefaultImage ("TaharezLook/MouseArrow");
+  CEGUI::System::getSingleton ().getDefaultGUIContext ().getMouseCursor ().setDefaultImage("TaharezLook/MouseArrow");
   
   //PARCHEO RATÓN CEGUI: para que al inicio se encuentre en la misma posicion que el raton de OIS
   // Move CEGUI mouse to (0,0)                                        
@@ -43,21 +44,35 @@ void IntroState::createGui()
   CEGUI::Window* sheet = CEGUI::WindowManager::getSingleton ().createWindow ("DefaultWindow","HLF/Sheet");
   
   //Marco
-  CEGUI::Window* marco = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/FrameWindow");
+  CEGUI::Window* marco = CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/FrameWindow","HLF/FrameWindow");
   marco->setText("Hundir la Flota");
   marco->setSize(CEGUI::USize(CEGUI::UDim(0.45,0), CEGUI::UDim(0.45,0)));
   marco->setPosition (CEGUI::UVector2 (CEGUI::UDim (0.5 - 0.45 / 2, 0), CEGUI::UDim (0.2, 0)));
 
-  CEGUI::Window* onePlayerBtn = CEGUI::WindowManager::getSingleton ().createWindow ("TaharezLook/Button", "HLF/QuitButton");
+  //Boton 1 jugador
+  CEGUI::Window* onePlayerBtn = CEGUI::WindowManager::getSingleton ().createWindow ("TaharezLook/Button", "HLF/OnePlayerBtn");
   onePlayerBtn->setText ("One player vs CPU");
   onePlayerBtn->setSize (CEGUI::USize (CEGUI::UDim (0.50, 0), CEGUI::UDim (0.15, 0)));
   onePlayerBtn->setPosition (CEGUI::UVector2 (CEGUI::UDim (0.5 - 0.5/ 2, 0), CEGUI::UDim (0.1, 0)));
+  onePlayerBtn->subscribeEvent (CEGUI::PushButton::EventClicked,CEGUI::Event::Subscriber (&IntroState::OnePlayer, this));
+
+  //Boton 2 jugadores
+  CEGUI::Window* twoPlayerBtn = CEGUI::WindowManager::getSingleton ().createWindow ("TaharezLook/Button", "HLF/TwoPlayerBtn");
+  twoPlayerBtn->setText ("Player 1 vs Player 2");
+  twoPlayerBtn->setSize (CEGUI::USize (CEGUI::UDim (0.50, 0), CEGUI::UDim (0.15, 0)));
+  twoPlayerBtn->setPosition (CEGUI::UVector2 (CEGUI::UDim (0.5 - 0.5/ 2, 0), CEGUI::UDim (0.3, 0)));
+  twoPlayerBtn->subscribeEvent (CEGUI::PushButton::EventClicked,CEGUI::Event::Subscriber (&IntroState::TwoPlayer, this));
   
-  _conexionSubscriptorCegui = onePlayerBtn->subscribeEvent (CEGUI::PushButton::EventClicked,CEGUI::Event::Subscriber (&IntroState::OnePlayer, this));
-  
+  //Boton Records
+  CEGUI::Window* recordBtn = CEGUI::WindowManager::getSingleton ().createWindow ("TaharezLook/Button", "HLF/recordBtn");
+  recordBtn->setText ("Records");
+  recordBtn->setSize (CEGUI::USize (CEGUI::UDim (0.50, 0), CEGUI::UDim (0.15, 0)));
+  recordBtn->setPosition (CEGUI::UVector2 (CEGUI::UDim (0.5 - 0.5/ 2, 0), CEGUI::UDim (0.5, 0)));
+  recordBtn->subscribeEvent (CEGUI::PushButton::EventClicked,CEGUI::Event::Subscriber (&IntroState::Record, this));
+   
   
   //Quit button
-  CEGUI::Window* quitButton = CEGUI::WindowManager::getSingleton ().createWindow ("TaharezLook/Button", "Ex1/QuitButton");
+  CEGUI::Window* quitButton = CEGUI::WindowManager::getSingleton ().createWindow ("TaharezLook/Button", "HLF/QuitBtn");
   quitButton->setText ("Quit");
   quitButton->setSize (CEGUI::USize (CEGUI::UDim (0.20, 0), CEGUI::UDim (0.10, 0)));
   quitButton->setPosition (CEGUI::UVector2 (CEGUI::UDim (0.5 - 0.20 / 2, 0), CEGUI::UDim (0.8, 0)));
@@ -66,20 +81,34 @@ void IntroState::createGui()
   //Attaching buttons
   sheet->addChild(marco);
   marco->addChild(onePlayerBtn);
+  marco->addChild(twoPlayerBtn);
+  marco->addChild(recordBtn);
   marco->addChild(quitButton);
-  //sheet->addChild (quitButton);
   CEGUI::System::getSingleton().getDefaultGUIContext ().setRootWindow (sheet);
-
-  
     
 }
+
+
+bool IntroState::TwoPlayer(const CEGUI::EventArgs &e)
+{
+    _cambiandoEstado = true;
+    _switchState = two_player;
+    return true;
+}
+
+bool IntroState::Record(const CEGUI::EventArgs &e)
+{
+    _cambiandoEstado = true;
+    _switchState = records;
+    return true;
+}
+
+
 
 bool IntroState::OnePlayer(const CEGUI::EventArgs &e)
 {
     _cambiandoEstado = true;
-    cout << "ha elegido un jugador" << endl;
-    _conexionSubscriptorCegui->disconnect();
-    changeState(PlayState::getSingletonPtr());
+    _switchState = one_player;
     return true;
 }
 
@@ -96,7 +125,6 @@ void IntroState::exit()
   _sceneMgr->clearScene();
   _root->getAutoCreatedWindow()->removeAllViewports();
   _rendererCEGUI->destroySystem();  
-  
 }
 
 void IntroState::pause ()
@@ -110,6 +138,19 @@ void IntroState::resume ()
 bool IntroState::frameStarted(const Ogre::FrameEvent& evt) 
 {
     CEGUI::System::getSingleton().getDefaultGUIContext().injectTimePulse(evt.timeSinceLastFrame);
+    
+    if (_cambiandoEstado)
+    {
+        switch (_switchState)
+        {
+            case one_player: changeState(PlayState::getSingletonPtr()); break;
+            case records:    changeState(RecordsState::getSingletonPtr()); break;
+            default:;
+        }
+       
+       _cambiandoEstado = false;
+    }
+    
   return true;
 }
 
@@ -159,8 +200,7 @@ void IntroState::mousePressed(const OIS::MouseEvent &e, OIS::MouseButtonID id)
 
 void IntroState::mouseReleased(const OIS::MouseEvent &e, OIS::MouseButtonID id)
 {
-    if (!_cambiandoEstado)
-        CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonUp(convertirBotonMouse(id));
+    CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonUp(convertirBotonMouse(id));
 }
 
 IntroState* IntroState::getSingletonPtr ()

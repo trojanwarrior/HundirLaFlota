@@ -95,10 +95,10 @@ void PlayState::createGUI ()
   CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseMove(-mousePos.d_x,-mousePos.d_y);
  
   //Sheet
-  CEGUI::Window* sheet = CEGUI::WindowManager::getSingleton ().createWindow ("DefaultWindow","Ex1/Sheet");
+  CEGUI::Window* sheet = CEGUI::WindowManager::getSingleton ().createWindow ("DefaultWindow","HLF/Sheet");
 
   //Quit button
-  CEGUI::Window* quitButton = CEGUI::WindowManager::getSingleton ().createWindow ("TaharezLook/Button", "Ex1/QuitButton");
+  CEGUI::Window* quitButton = CEGUI::WindowManager::getSingleton ().createWindow ("TaharezLook/Button", "HLF/QuitButton");
   quitButton->setText ("Quit");
   quitButton->setSize (CEGUI::USize (CEGUI::UDim (0.15, 0), CEGUI::UDim (0.05, 0)));
   quitButton->setPosition (CEGUI::UVector2 (CEGUI::UDim (0.5 - 0.15 / 2, 0), CEGUI::UDim (0.2, 0)));
@@ -217,8 +217,7 @@ PlayState::pause()
 {
 }
 
-void
-PlayState::resume()
+void PlayState::resume()
 {
   // Se restaura el background colour.
   _viewport->setBackgroundColour(Ogre::ColourValue(0.0, 0.0, 1.0));
@@ -315,7 +314,7 @@ void PlayState::keyReleased(const OIS::KeyEvent &e)
 void PlayState::mouseMoved(const OIS::MouseEvent &e)
 {
   //CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseMove(e.state.X.rel, e.state.Y.rel);  
-  //CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseMove(e.state.X.abs,e.state.Y.abs);
+  //CEGUI::System::getSingleton().ge tDefaultGUIContext().injectMouseMove(e.state.X.abs,e.state.Y.abs);
     
   CEGUI::Vector2f mousePos = CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().getPosition();
   cout << "PRE CEGUI: " << mousePos.d_x << "," << mousePos.d_y << endl;
@@ -399,14 +398,12 @@ void PlayState::mouseReleased(const OIS::MouseEvent &e, OIS::MouseButtonID id)
 
 }
 
-PlayState*
-PlayState::getSingletonPtr ()
+PlayState* PlayState::getSingletonPtr ()
 {
 return msSingleton;
 }
 
-PlayState&
-PlayState::getSingleton ()
+PlayState& PlayState::getSingleton ()
 { 
   assert(msSingleton);
   return *msSingleton;
