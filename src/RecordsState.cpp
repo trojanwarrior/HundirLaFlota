@@ -17,7 +17,8 @@ void RecordsState::enter()
   _sceneMgr->setAmbientLight (Ogre::ColourValue (1, 1, 1));
   _camera = _sceneMgr->getCamera ("IntroCamera");
 
-  _viewport = _root->getAutoCreatedWindow()->addViewport(_camera);
+  //_viewport = _root->getAutoCreatedWindow()->addViewport(_camera);
+  _viewport = _root->getAutoCreatedWindow()->getViewport(0);
   double width = _viewport->getActualWidth ();
   double height = _viewport->getActualHeight ();
   _camera->setAspectRatio (width / height);
@@ -60,7 +61,8 @@ void RecordsState::enter()
 
 void RecordsState::createGUI()
 {
-  _rendererCEGUI = &CEGUI::OgreRenderer::bootstrapSystem();
+  //_rendererCEGUI = &CEGUI::OgreRenderer::bootstrapSystem();
+  //_rendererCEGUI = CEGUI::System::getSingleton().getDefaultGUIContext();
   CEGUI::Scheme::setDefaultResourceGroup ("Schemes");
   CEGUI::ImageManager::setImagesetDefaultResourceGroup ("Imagesets");
   CEGUI::Font::setDefaultResourceGroup ("Fonts");
@@ -101,12 +103,14 @@ void RecordsState::createGUI()
   if (!_rec->Records().empty())
   {
       std::vector<record>::iterator it;
-      int i=1;
-      for (it = _rec->Records().begin(); it!=_rec->Records().end(); it++)
+      //int i=1;
+      //for (it = _rec->Records().begin(); it!=_rec->Records().end(); ++it)
+      for (int i=0; i<_rec->Records().size(); i++)
       {
               std::stringstream s,p;
               s << "Text" << i;
-              p << it->posicion << ". " << it->nombre << "            " << it->puntuacion;
+              //p << it[i].posicion << ". " << it[i].nombre << "            " << it[i].puntuacion;
+              p << _rec->Records()[i].posicion << ". " << _rec->Records()[i].nombre << "[horz-alignment='right']" << _rec->Records()[i].puntuacion;
               marcoRecords->getChild(s.str())->setText(p.str());
       }    
   }
@@ -124,8 +128,7 @@ void RecordsState::createGUI()
   //Attaching buttons
   sheet->addChild(marcoRecords);
   //sheet->addChild (quitButton);
-  CEGUI::System::getSingleton().getDefaultGUIContext ().setRootWindow (sheet);
-
+  CEGUI::System::getSingleton().getDefaultGUIContext().setRootWindow(sheet);
     
 }
 
@@ -139,8 +142,10 @@ bool RecordsState::volver(const CEGUI::EventArgs &e)
 
 void RecordsState::exit ()
 {
-    _rendererCEGUI->destroySystem();
+    //Comento esto por que de momento voy a delegar la destrucción del GUI actual 
+    //en el estado que tome el control después de salir de este.
     
+    //_rendererCEGUI->destroySystem();
 }
 
 void RecordsState::pause ()
@@ -205,6 +210,7 @@ bool RecordsState::frameEnded (const Ogre::FrameEvent& evt)
     if (_volver)
     {
         delete _rec;
+        
         popState();
     }
         

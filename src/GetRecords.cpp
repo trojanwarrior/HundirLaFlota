@@ -147,7 +147,7 @@ void GetRecords::readRecords(string& rutaRecords) throw( std::runtime_error )
          {
             // Found node which is an Element. Re-cast node as element
             DOMElement* currentElement = dynamic_cast< xercesc::DOMElement* >( currentNode );
-            if( XMLString::equals(currentElement->getTagName(), TAG_record))
+            if( XMLString::equals(currentElement->getTagName(),TAG_record))
             {
                // Already tested node as type element and of name "record".
                // Read attributes of element "ApplicationSettings".

@@ -129,10 +129,14 @@ void IntroState::exit()
 
 void IntroState::pause ()
 {
+    cout << "introstate pause \n";
 }
 
 void IntroState::resume ()
 {
+    cout << "introstate resume \n";
+    _rendererCEGUI->destroySystem(); // Destruimos cualquier GUI que hubiera sido creada en otro estado.
+    createGui(); // Recreamos la GUI de nuestro estado.
 }
 
 bool IntroState::frameStarted(const Ogre::FrameEvent& evt) 
@@ -144,7 +148,7 @@ bool IntroState::frameStarted(const Ogre::FrameEvent& evt)
         switch (_switchState)
         {
             case one_player: changeState(PlayState::getSingletonPtr()); break;
-            case records:    changeState(RecordsState::getSingletonPtr()); break;
+            case records:    pushState(RecordsState::getSingletonPtr()); break;
             default:;
         }
        

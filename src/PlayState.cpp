@@ -317,13 +317,15 @@ void PlayState::mouseMoved(const OIS::MouseEvent &e)
   //CEGUI::System::getSingleton().ge tDefaultGUIContext().injectMouseMove(e.state.X.abs,e.state.Y.abs);
     
   CEGUI::Vector2f mousePos = CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().getPosition();
+/*  
   cout << "PRE CEGUI: " << mousePos.d_x << "," << mousePos.d_y << endl;
   cout << "OIS ABS: " << e.state.X.abs << "," << e.state.Y.abs << "     OIS REL: " << e.state.X.rel << "," << e.state.Y.rel << endl;
   cout << "OIS State Width: " << e.state.width << "     State Height: " << e.state.height << endl;
+*/
   CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().setPosition(CEGUI::Vector2f(e.state.X.abs,e.state.Y.abs));
   CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseMove(mousePos.d_x/float(e.state.width), mousePos.d_y/float(e.state.height));
   mousePos = CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().getPosition();
-  cout << "POST CEGUI: " << mousePos.d_x << "," << mousePos.d_y << endl;
+  //cout << "POST CEGUI: " << mousePos.d_x << "," << mousePos.d_y << endl;
   
 /*
    _rotCamarax = e.state.X.rel * _deltaT * -1;
@@ -332,36 +334,40 @@ void PlayState::mouseMoved(const OIS::MouseEvent &e)
    _camera->pitch(Radian(_rotCamaray));
 */   
 
-
-    //uint32_t mask = CASILLA;
-    int posx = e.state.X.abs;
-    int posy = e.state.Y.abs;
-    //Ray r = setRayQuery(posx, posy, mask);
-    Ray r = setRayQuery(posx, posy, CASILLA);
-    RaySceneQueryResult &result = _raySceneQuery->execute();
-    RaySceneQueryResult::iterator it;
-    it = result.begin();
-    if (it != result.end()) 
-    {
-/*
-			if (it->movable->getParentSceneNode()->getName() == "Col_Suelo") 
-			{
-			  SceneNode *nodeaux = _sceneManager->createSceneNode();
-			  int i = rand()%2;   std::stringstream saux;
-			  saux << "Cube" << i+1 << ".mesh";
-			  Entity *entaux = _sceneManager->createEntity(saux.str());
-			  entaux->setQueryFlags(i?CUBE1:CUBE2);
-			  nodeaux->attachObject(entaux);
-			  nodeaux->translate(r.getPoint(it->distance));
-			  _sceneManager->getRootSceneNode()->addChild(nodeaux);
-			}
-*/
-      
-      _selectedNode = it->movable->getParentSceneNode();
-      _selectedNode->showBoundingBox(true);
+        int posx = e.state.X.abs;
+        int posy = e.state.Y.abs;
+        Ray r = setRayQuery(posx, posy, CASILLA);
+        (void)r;
+        RaySceneQueryResult &result = _raySceneQuery->execute();
+        RaySceneQueryResult::iterator it;
+        it = result.begin();
+        if (it != result.end()) 
+        {
+    /*
+                if (it->movable->getParentSceneNode()->getName() == "Col_Suelo") 
+                {
+                  SceneNode *nodeaux = _sceneManager->createSceneNode();
+                  int i = rand()%2;   std::stringstream saux;
+                  saux << "Cube" << i+1 << ".mesh";
+                  Entity *entaux = _sceneManager->createEntity(saux.str());
+                  entaux->setQueryFlags(i?CUBE1:CUBE2);
+                  nodeaux->attachObject(entaux);
+                  nodeaux->translate(r.getPoint(it->distance));
+                  _sceneManager->getRootSceneNode()->addChild(nodeaux);
+                }
+    */
+          if (_selectedNode != it->movable->getParentSceneNode())
+          {
+              if (_selectedNode) _selectedNode->showBoundingBox(false);
+              _selectedNode = it->movable->getParentSceneNode();
+              _selectedNode->showBoundingBox(true);
+          }
+        }
+/*      
       cout << _selectedNode->getName() << " POSICION_X " << _selectedNode->getPosition().x << endl; //<< "," << _selectedNode->getPosition().y <<
                                                         //"," << _selectedNode->getPosition().z << endl;
-    }
+*/
+
 
 }
 
