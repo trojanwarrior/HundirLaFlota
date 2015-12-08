@@ -105,7 +105,7 @@ void RecordsState::createGUI()
       std::vector<record>::iterator it;
       //int i=1;
       //for (it = _rec->Records().begin(); it!=_rec->Records().end(); ++it)
-      for (int i=0; i<_rec->Records().size(); i++)
+      for (size_t i=0; i<_rec->Records().size(); i++)
       {
               std::stringstream s,p;
               s << "Text" << i;

@@ -2,12 +2,18 @@
 #include "PauseState.h"
 
 
+
+
 //http://www.cplusplus.com/doc/tutorial/templates/          <--------Visita esta página para entender la linea justo debajo de esta
 template<> PlayState* Ogre::Singleton<PlayState>::msSingleton = 0;
 
-void
-PlayState::enter ()
+void PlayState::enter ()
 {
+    
+    createPlayers();
+    
+    //cout << "Pieza de barco en casilla 0,0. TOCADA=" << pm.getJugadores()[0]->getCasilleroAtaque()[0][0]._pieza->_tocada;
+    
 /*
   _root = Ogre::Root::getSingletonPtr();
 
@@ -53,9 +59,7 @@ PlayState::enter ()
   //Gui
   createGUI ();
   
-  //_camera->setPosition (Vector3 (0.72, 11.0, -20.37));
-  //_camera->setPosition (Vector3 (4.42, 10.34, -18.22));
-  _camera->setPosition (Vector3 (0,12,17));
+  _camera->setPosition (Vector3 (0,12,18));
   _camera->lookAt (_sceneMgr->getSceneNode("Barquito")->getPosition());
   _camera->yaw(Degree(0));
   _camera->pitch(Degree(0));
@@ -68,12 +72,48 @@ PlayState::enter ()
   
   _raySceneQuery = _sceneMgr->createRayQuery(Ogre::Ray());
   _selectedNode = NULL;
-
+  _flip = false;
  
   _exitGame = false;
   _tSpeed = 10.0;                              //Distancia en unidades del mundo virtual que queremos recorrer en un segundo cuando movamos cositas
 
 }
+
+void PlayState::createPlayers()
+{
+
+    Player *humano;
+    humano = new Humano();
+    Player *cpu = new Cpu();
+    
+    humano->AddBarco(portaviones);
+    humano->AddBarco(portaviones);
+    humano->AddBarco(acorazado);
+    humano->AddBarco(acorazado);
+    humano->AddBarco(acorazado);
+    humano->AddBarco(lancha);
+    humano->AddBarco(lancha);
+    humano->AddBarco(lancha);
+    humano->AddBarco(lancha);
+
+    cpu->AddBarco(portaviones);
+    cpu->AddBarco(portaviones);
+    cpu->AddBarco(acorazado);
+    cpu->AddBarco(acorazado);
+    cpu->AddBarco(acorazado);
+    cpu->AddBarco(lancha);
+    cpu->AddBarco(lancha);
+    cpu->AddBarco(lancha);
+    cpu->AddBarco(lancha);
+    
+    static_cast<Cpu*>(cpu)->colocaBarcos();
+
+    
+    pm.addPlayer(humano);
+    pm.addPlayer(cpu);
+
+}
+
 
 void PlayState::createGUI ()
 {
@@ -101,7 +141,9 @@ void PlayState::createGUI ()
   CEGUI::Window* quitButton = CEGUI::WindowManager::getSingleton ().createWindow ("TaharezLook/Button", "HLF/QuitButton");
   quitButton->setText ("Quit");
   quitButton->setSize (CEGUI::USize (CEGUI::UDim (0.15, 0), CEGUI::UDim (0.05, 0)));
-  quitButton->setPosition (CEGUI::UVector2 (CEGUI::UDim (0.5 - 0.15 / 2, 0), CEGUI::UDim (0.2, 0)));
+  //quitButton->setPosition (CEGUI::UVector2 (CEGUI::UDim (0.5 - 0.15 / 2, 0), CEGUI::UDim (0.2, 0)));
+  quitButton->setPosition (CEGUI::UVector2 (CEGUI::UDim (0.84, 0), CEGUI::UDim (0.01, 0)));
+  
   quitButton->subscribeEvent (CEGUI::PushButton::EventClicked,CEGUI::Event::Subscriber (&PlayState::quit, this));
 
   //Attaching buttons
@@ -152,13 +194,16 @@ void PlayState::createScene ()
         nodeCasillaCol->attachObject(entCasillaCol);
         nodeCasillaCol->setVisible(false);
         nodeTableroCol->addChild (nodeCasillaCol);
+        cout << "nodo " << sauxnode.str() << " creado. \n";
         
+        sauxnode.str("");
         sauxnode << x << i << "_" << j;
         SceneNode *nodeCasilla = _sceneMgr->createSceneNode(sauxnode.str());
         Entity *entCasilla = _sceneMgr->createEntity(sauxnode.str(), "Casilla.mesh");
         entCasilla->setQueryFlags(CASILLA);
         nodeCasilla->attachObject(entCasilla);
         nodeTableroCol->addChild (nodeCasilla);
+        cout << "nodo " << sauxnode.str() << " creado. \n";
         
         nodeCasilla->setPosition(origen + j  + offsetX , nodeCasilla->getPosition().y+1, origen + i + offsetY);
         nodeCasilla->setVisible(true);
@@ -180,7 +225,8 @@ void PlayState::createScene ()
   Entity *entBarquito = _sceneMgr->createEntity ("barquito", "barquito.mesh");
   entBarquito->setQueryFlags(BARCO);
   nodoBarquito->attachObject (entBarquito);
-  _sceneMgr->getRootSceneNode ()->addChild (nodoBarquito);
+  _sceneMgr->getSceneNode("Casilla_1_1")->addChild(nodoBarquito);
+  //_sceneMgr->getRootSceneNode ()->addChild (nodoBarquito);
 
   SceneNode *nodoLuz = _sceneMgr->createSceneNode ("Luces");
   _sceneMgr->setShadowTechnique (SHADOWTYPE_STENCIL_ADDITIVE);
@@ -223,9 +269,7 @@ void PlayState::resume()
   _viewport->setBackgroundColour(Ogre::ColourValue(0.0, 0.0, 1.0));
 }
 
-bool
-PlayState::frameStarted
-(const Ogre::FrameEvent& evt)
+bool PlayState::frameStarted(const Ogre::FrameEvent& evt)
 {
   _deltaT = evt.timeSinceLastFrame; //Tiempo transcurrido desde que se pinto el último frame
   CEGUI::System::getSingleton().getDefaultGUIContext().injectTimePulse(_deltaT);
@@ -233,6 +277,17 @@ PlayState::frameStarted
   //int fps = 1.0 / _deltaT;                              //Para calcular el rendimiento
 
   _camera->moveRelative(_vtCamara * _deltaT * _tSpeed);
+  
+  if (_flip)
+  {
+        _rotaTablero+= 10;
+        _sceneMgr->getSceneNode("tableroCol")->roll(Ogre::Degree(_rotaTablero * _deltaT));
+        
+        if (_rotaTablero > 180)
+            _flip = false;
+  }
+  
+  
 /*
   if (_camera->getPosition().length() < 10.0) {
     _camera->moveRelative(-_vtCamara * _deltaT * _tSpeed);
@@ -363,10 +418,10 @@ void PlayState::mouseMoved(const OIS::MouseEvent &e)
               _selectedNode->showBoundingBox(true);
           }
         }
-/*      
-      cout << _selectedNode->getName() << " POSICION_X " << _selectedNode->getPosition().x << endl; //<< "," << _selectedNode->getPosition().y <<
+      
+      if (_selectedNode) cout << _selectedNode->getName() << " POSICION_X " << _selectedNode->getPosition().x << endl; //<< "," << _selectedNode->getPosition().y <<
                                                         //"," << _selectedNode->getPosition().z << endl;
-*/
+
 
 
 }
@@ -388,6 +443,12 @@ void PlayState::mousePressed(const OIS::MouseEvent &e, OIS::MouseButtonID id)
      _rotCamaray = e.state.Y.abs * _deltaT * -1;
      //_camera->yaw(Radian(_rotCamarax));
      //_camera->pitch(Radian(_rotCamaray));
+   }
+
+   if (id == OIS::MB_Right)
+   {
+       _flip = true;
+       _rotaTablero = 0;
    }
 
 }

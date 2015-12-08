@@ -25,6 +25,10 @@
 #include <OIS/OIS.h>
 
 #include "GameState.h"
+#include "PlayManager.h"
+#include "Player.h"
+#include "Humano.h"
+#include "Cpu.h"
 
 #define STAGE   1 << 0 // mascara para el escenario
 #define BARCO   1 << 1 // mascara para un barco, en realidad será una casilla donde haya un trozo de barco
@@ -69,6 +73,7 @@ class PlayState : public Ogre::Singleton<PlayState>, public GameState
 
   void createGUI();
   void createScene();
+  void createPlayers();
 
   CEGUI::MouseButton convertirBotonMouse(OIS::MouseButtonID id);
 
@@ -85,6 +90,12 @@ class PlayState : public Ogre::Singleton<PlayState>, public GameState
   RaySceneQuery *_raySceneQuery;
   Ray setRayQuery(int posx, int posy, uint32 mask);
   SceneNode *_selectedNode;
+  
+  bool _flip;
+  int _rotaTablero;
+  
+  PlayManager pm;
+  
 };
 
 #endif

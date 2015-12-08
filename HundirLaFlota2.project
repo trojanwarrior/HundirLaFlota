@@ -37,6 +37,13 @@
     <File Name="src/IntroState.cpp"/>
     <File Name="src/RecordsState.cpp"/>
     <File Name="src/GetRecords.cpp"/>
+    <File Name="src/Barco.cpp"/>
+    <File Name="src/Casilla.cpp"/>
+    <File Name="src/Player.cpp"/>
+    <File Name="src/PlayManager.cpp"/>
+    <File Name="src/Humano.cpp"/>
+    <File Name="src/Pieza.cpp"/>
+    <File Name="src/Cpu.cpp"/>
   </VirtualDirectory>
   <VirtualDirectory Name="include">
     <File Name="include/GameManager.h"/>
@@ -47,6 +54,13 @@
     <File Name="include/IntroState.h"/>
     <File Name="include/RecordsState.h"/>
     <File Name="include/GetRecords.h"/>
+    <File Name="include/Pieza.h"/>
+    <File Name="include/Barco.h"/>
+    <File Name="include/PlayManager.h"/>
+    <File Name="include/Player.h"/>
+    <File Name="include/Casilla.h"/>
+    <File Name="include/Humano.h"/>
+    <File Name="include/Cpu.h"/>
   </VirtualDirectory>
   <Dependencies Name="Debug"/>
   <Dependencies Name="Release"/>
