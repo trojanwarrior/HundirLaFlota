@@ -6,10 +6,14 @@
 class Humano : public Player
 {
 public:
-    /*Humano(){};
-    ~Humano();*/
+    Humano();
+    //~Humano();
 
-    virtual void mueve();
+    void mueve();
+    bool colocaBarcos(Ogre::Vector2 posCasilla, Barco &barco);
+    
+    
+    
 };
 
 #endif // HUMANO_H

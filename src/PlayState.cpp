@@ -59,6 +59,8 @@ void PlayState::enter ()
   //Gui
   createGUI ();
   
+  createGUIDefensaHumano();
+  
   _camera->setPosition (Vector3 (0,12,18));
   _camera->lookAt (_sceneMgr->getSceneNode("Barquito")->getPosition());
   _camera->yaw(Degree(0));
@@ -73,29 +75,59 @@ void PlayState::enter ()
   _raySceneQuery = _sceneMgr->createRayQuery(Ogre::Ray());
   _selectedNode = NULL;
   _flip = false;
- 
+  _colocandoBarco = false;
   _exitGame = false;
   _tSpeed = 10.0;                              //Distancia en unidades del mundo virtual que queremos recorrer en un segundo cuando movamos cositas
+  
 
 }
+
+void PlayState::createGUIDefensaHumano()
+{
+
+  if (pm._jugadores[0]->num_portaviones < pm._jugadores[0]->NUM_MAX_PORTAVIONES)
+  {          
+      CEGUI::Window* btnPortaviones = CEGUI::WindowManager::getSingleton ().createWindow ("TaharezLook/Button", "HLF/Portaviones");
+      btnPortaviones->setText ("Portaviones");
+      btnPortaviones->setSize (CEGUI::USize (CEGUI::UDim (0.15, 0), CEGUI::UDim (0.05, 0)));
+      btnPortaviones->setPosition (CEGUI::UVector2 (CEGUI::UDim (0.01, 0), CEGUI::UDim (0.01, 0)));
+      btnPortaviones->subscribeEvent (CEGUI::PushButton::EventClicked,CEGUI::Event::Subscriber (&PlayState::colocaPortaviones, this));
+      CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->addChild(btnPortaviones);
+
+  }
+  
+  if (pm._jugadores[0]->num_acorazados < pm._jugadores[0]->NUM_MAX_ACORAZADOS)
+  {
+      CEGUI::Window* btnAcorazado = CEGUI::WindowManager::getSingleton ().createWindow ("TaharezLook/Button", "HLF/Acorazado");
+      btnAcorazado->setText ("Acorazado");
+      btnAcorazado->setSize (CEGUI::USize (CEGUI::UDim (0.15, 0), CEGUI::UDim (0.05, 0)));
+      btnAcorazado->setPosition (CEGUI::UVector2 (CEGUI::UDim (0.20, 0), CEGUI::UDim (0.01, 0)));
+      btnAcorazado->subscribeEvent (CEGUI::PushButton::EventClicked,CEGUI::Event::Subscriber (&PlayState::colocaAcorazado, this));
+      CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->addChild(btnAcorazado);
+  }
+
+  if (pm._jugadores[0]->num_lanchas < pm._jugadores[0]->NUM_MAX_LANCHAS)
+  {
+      CEGUI::Window* btnLancha = CEGUI::WindowManager::getSingleton ().createWindow ("TaharezLook/Button", "HLF/Lancha");
+      btnLancha->setText ("Lancha");
+      btnLancha->setSize (CEGUI::USize (CEGUI::UDim (0.15, 0), CEGUI::UDim (0.05, 0)));
+      btnLancha->setPosition (CEGUI::UVector2 (CEGUI::UDim (0.39, 0), CEGUI::UDim (0.01, 0)));
+      btnLancha->subscribeEvent (CEGUI::PushButton::EventClicked,CEGUI::Event::Subscriber (&PlayState::colocaLancha, this));
+      CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->addChild(btnLancha);
+  }
+  
+  
+  
+}
+
+
 
 void PlayState::createPlayers()
 {
 
-    Player *humano;
-    humano = new Humano();
+    Player *humano = new Humano();
     Player *cpu = new Cpu();
     
-    humano->AddBarco(portaviones);
-    humano->AddBarco(portaviones);
-    humano->AddBarco(acorazado);
-    humano->AddBarco(acorazado);
-    humano->AddBarco(acorazado);
-    humano->AddBarco(lancha);
-    humano->AddBarco(lancha);
-    humano->AddBarco(lancha);
-    humano->AddBarco(lancha);
-
     cpu->AddBarco(portaviones);
     cpu->AddBarco(portaviones);
     cpu->AddBarco(acorazado);
@@ -106,7 +138,7 @@ void PlayState::createPlayers()
     cpu->AddBarco(lancha);
     cpu->AddBarco(lancha);
     
-    static_cast<Cpu*>(cpu)->colocaBarcos();
+    cpu->colocaBarcos();
 
     
     pm.addPlayer(humano);
@@ -185,9 +217,8 @@ void PlayState::createScene ()
     for (int j = 0; j < 10; j++)
     {
         offsetX = j * 0.6;
-        //if (i == 0 || j == 0) continue;
-        
-        sauxnode << s << i << "_" << j;
+                
+        sauxnode << s << j << "_" << i;
         SceneNode *nodeCasillaCol = _sceneMgr->createSceneNode (sauxnode.str ());
         Entity *entCasillaCol = _sceneMgr->createEntity (sauxnode.str (), "CasillaCol.mesh");
         entCasillaCol->setQueryFlags(STAGE);
@@ -197,7 +228,7 @@ void PlayState::createScene ()
         cout << "nodo " << sauxnode.str() << " creado. \n";
         
         sauxnode.str("");
-        sauxnode << x << i << "_" << j;
+        sauxnode << x << j << "_" << i;
         SceneNode *nodeCasilla = _sceneMgr->createSceneNode(sauxnode.str());
         Entity *entCasilla = _sceneMgr->createEntity(sauxnode.str(), "Casilla.mesh");
         entCasilla->setQueryFlags(CASILLA);
@@ -242,6 +273,46 @@ void PlayState::createScene ()
 
 }
 
+bool PlayState::colocaPortaviones(const CEGUI::EventArgs &e)
+{
+    return true;
+}
+
+bool PlayState::colocaAcorazado(const CEGUI::EventArgs &e)
+{
+    return true;
+}
+
+bool PlayState::colocaLancha(const CEGUI::EventArgs &e)
+{
+    if (!_colocandoBarco)
+    {
+        Entity *entBarco;
+        SceneNode *nodoColocador;
+
+        try
+        {
+           _sceneMgr->getSceneNode("nodoColocador")->detachAllObjects();
+           _sceneMgr->destroyEntity("entLancha");
+           _sceneMgr->destroySceneNode("nodoColocador");
+        } catch (Ogre::Exception &e)
+        {
+            cout << "\nFallo!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
+        }
+
+        entBarco = _sceneMgr->createEntity("entLancha","Lancha.mesh");
+        nodoColocador= _sceneMgr->createSceneNode("nodoColocador");
+        entBarco->setQueryFlags(BARCO);
+        nodoColocador->attachObject(entBarco);
+        _sceneMgr->getRootSceneNode()->addChild(nodoColocador);
+        _barcoSeleccionado = new Barco(lancha);
+        _barcoSeleccionado->setOrientacion(horizontal);
+        _colocandoBarco = true;
+    }
+    return true;
+}
+
+
 //Quit del GUI
 bool PlayState::quit(const CEGUI::EventArgs &e)
 {
@@ -278,15 +349,6 @@ bool PlayState::frameStarted(const Ogre::FrameEvent& evt)
 
   _camera->moveRelative(_vtCamara * _deltaT * _tSpeed);
   
-  if (_flip)
-  {
-        _rotaTablero+= 10;
-        _sceneMgr->getSceneNode("tableroCol")->roll(Ogre::Degree(_rotaTablero * _deltaT));
-        
-        if (_rotaTablero > 180)
-            _flip = false;
-  }
-  
   
 /*
   if (_camera->getPosition().length() < 10.0) {
@@ -298,12 +360,11 @@ bool PlayState::frameStarted(const Ogre::FrameEvent& evt)
   _sceneMgr->getSceneNode("Barquito")->yaw(Ogre::Degree(_r * _deltaT));
 
   _mecer = _mecer % 10;
-  //std::cout << _mecer << endl;
   if (!_mecer)
       _mecer *= -1;
-  //_sceneMgr->getSceneNode("Barquito")->roll(Ogre::Degree(Ogre::Math::Sin((_mecer * _deltaT),true)));
   _sceneMgr->getSceneNode("Barquito")->roll(Ogre::Degree(_mecer * _deltaT));
   _mecer++;
+  
   
   //_camera->yaw(Radian(_rotCamarax));
   //_camera->pitch(Radian(_rotCamaray));
@@ -421,8 +482,13 @@ void PlayState::mouseMoved(const OIS::MouseEvent &e)
       
       if (_selectedNode) cout << _selectedNode->getName() << " POSICION_X " << _selectedNode->getPosition().x << endl; //<< "," << _selectedNode->getPosition().y <<
                                                         //"," << _selectedNode->getPosition().z << endl;
-
-
+                                                        
+  if (_colocandoBarco)
+  {
+      if (_selectedNode)
+        _sceneMgr->getSceneNode("nodoColocador")->setPosition(_selectedNode->getPosition());
+  }
+                                                            
 
 }
 
@@ -434,22 +500,126 @@ void PlayState::mousePressed(const OIS::MouseEvent &e, OIS::MouseButtonID id)
 
   CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonDown(convertirBotonMouse(id));
 
+   if (id == OIS::MB_Left)
+   {
+       if (_colocandoBarco)
+       { 
+           if (_selectedNode)
+           { 
+               if (static_cast<Humano*>(pm._jugadores[0])->colocaBarcos(extraePosicionCasilla(_selectedNode->getName()),*_barcoSeleccionado))
+               {
+                  //SceneNode *nodoAux = _sceneMgr->getSceneNode("nodoColocador");
+                  //nodoAux->getParentSceneNode()->removeChild(nodoAux);
+                  //(_sceneMgr->getSceneNode(_selectedNode->getName()))->addChild(nodoAux);
+                  //nodoAux->setPosition(0,0.1,0);
+                  
+                  addBarcoAlTablero(pm._jugadores[0],*_barcoSeleccionado);
+                  
+                  
+                  
+                  for (size_t y = 0; y < pm._jugadores[0]->_casilleroDefensa.size(); y ++)
+                  {    
+                        cout << "\n";
+                        for (size_t x = 0; x < pm._jugadores[0]->_casilleroDefensa[y].size(); x ++)
+                            cout << pm._jugadores[0]->_casilleroDefensa[x][y]._vacia << " ";
+                    }
+                  cout << "\n\n";
+                        
+                  actualizaGUIColocacion(_barcoSeleccionado->getTipo());
+                  
+               }
+               _colocandoBarco = false;
+               
+           }
+       }   
+               
+   }
+
    if (id == OIS::MB_Middle)
    {
      cout << "se ha presionado el boton central" << endl;
-     //float rotx = e.state.X.rel * _deltaT * -1;
-     //float roty = e.state.Y.rel * _deltaT * -1;
      _rotCamarax = e.state.X.abs * _deltaT * -1;
      _rotCamaray = e.state.Y.abs * _deltaT * -1;
-     //_camera->yaw(Radian(_rotCamarax));
-     //_camera->pitch(Radian(_rotCamaray));
    }
 
    if (id == OIS::MB_Right)
    {
-       _flip = true;
-       _rotaTablero = 0;
+       //_flip = true;
+       //_rotaTablero = 0;
+       if (_colocandoBarco)
+       { 
+           _sceneMgr->getSceneNode("nodoColocador")->yaw(Ogre::Degree(90));
+           switch (_barcoSeleccionado->getOrientacion())
+           {
+               case horizontal: _barcoSeleccionado->setOrientacion(vertical); break;
+               case vertical: _barcoSeleccionado->setOrientacion(horizontal);
+           }
+       }
    }
+
+}
+
+void PlayState::addBarcoAlTablero(Player *jugador, Barco barco)
+{
+    stringstream nombreNodo;
+    stringstream nombreEnt;
+    stringstream mesh;
+    string n = "nodo";
+    string e = "ent";
+    switch (barco.getTipo())
+    {
+        case lancha:         nombreNodo << n << "Lancha_" << jugador->num_lanchas;
+                             nombreEnt << e << "Lancha_" << jugador->num_lanchas; 
+                             mesh << "Lancha.mesh"; break;
+        case acorazado:      nombreNodo << n << "Acorazado_" << jugador->num_acorazados;
+                             nombreEnt << e << "Acorazado_" << jugador->num_acorazados;
+                             mesh << "Acorazado.mesh"; break;
+        case portaviones:    nombreNodo << n << "Portaviones_" << jugador->num_portaviones;
+                             nombreEnt << e << "Portaviones_" << jugador->num_portaviones; 
+                             mesh << "Portaviones.mesh"; break; 
+        default: ;
+    }
+    
+    SceneNode *nodoAux = _sceneMgr->createSceneNode(nombreNodo.str());
+    Entity *entAux = _sceneMgr->createEntity(nombreEnt.str(), mesh.str());
+    nodoAux->attachObject(entAux);
+    _sceneMgr->getSceneNode(_selectedNode->getName())->addChild(nodoAux);
+    nodoAux->setPosition(0,0.1,0);
+    nodoAux->scale(0.5,0.5,0.5);
+    
+    cout << "posicion barco " << nodoAux->getPosition().x << "," << nodoAux->getPosition().y << "," <<nodoAux->getPosition().z << endl;
+    cout << "Padre barco en casilla " << _selectedNode->getName() << ", " << _selectedNode->getPosition() << endl;
+
+    
+    
+}
+
+void PlayState::actualizaGUIColocacion(tipoBarco tipo)
+{
+    switch (tipo)
+    {
+        case lancha:        pm._jugadores[0]->num_lanchas++; break;
+        case acorazado:     pm._jugadores[0]->num_acorazados++; break;
+        case portaviones:   pm._jugadores[0]->num_portaviones++; break;
+        default: ;
+    }
+    
+    _renderer->destroySystem();
+    createGUI();
+    createGUIDefensaHumano();
+}
+
+Ogre::Vector2 PlayState::extraePosicionCasilla(string nombre)
+{
+       string xs,ys;
+       string aux = _selectedNode->getName().substr(8); //Sacamos la parte que nos interesa
+       int i = aux.find("_");                           //localizo el separador de dimensiones
+       xs = aux.substr(0,i-1);                          //extraigo la x
+       ys = aux.substr(i+1);                            //extraigo la y
+       int x = atoi(xs.c_str());                        // y las convierto a entero
+       int y = atoi(ys.c_str());
+       
+       return Ogre::Vector2(x,y);
 
 }
 

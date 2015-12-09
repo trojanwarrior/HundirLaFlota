@@ -4,7 +4,7 @@
 void Player::AddBarco(tipoBarco tipo)
 {
         //_barcos.push_back(new Barco(portaviones));
-        _barcos.push_back(new Barco(tipo));
+        _barcos.push_back(Barco(tipo));
 }   
 
 Player::Player(const Player &obj)

@@ -7,7 +7,7 @@ Barco::Barco(tipoBarco tipo)
      //Creamos un barco mediante el tipo pasado
      _piezas.reserve(tipo);
      for (size_t i = 0; i<tipo; i++)
-         _piezas.push_back(new Pieza());
+         _piezas.push_back(Pieza());
      
 }
 
@@ -15,13 +15,8 @@ Barco::Barco(tipoBarco tipo)
 Barco::Barco(const Barco& obj)
 {
     _tipo = obj._tipo;
-    
-    if (_piezas.size()) _piezas.clear();
-    
-    _piezas.reserve(_tipo);
-    
-    for (size_t i = 0; i<_tipo; i++)
-        _piezas.push_back(obj._piezas[i]);
+    _orientado = obj._orientado;
+    _piezas = obj._piezas;
     
 }
 
@@ -29,8 +24,9 @@ Barco::Barco(const Barco& obj)
 Barco& Barco::operator =(const Barco &obj)
 {
     
-    if (_piezas.size() < obj._piezas.size())
-        _piezas.clear();
+    _piezas = obj._piezas;
+    _tipo = obj._tipo;
+    _orientado = obj._orientado;
 
     return *this;
 }
@@ -38,9 +34,7 @@ Barco& Barco::operator =(const Barco &obj)
 
 Barco::~Barco()
 {
-    for (size_t i = 0; i < _piezas.size(); i++)
-        if (_piezas[i]) delete _piezas[i];
-    
+
 }
 
 tipoBarco Barco::getTipo()
@@ -50,7 +44,7 @@ tipoBarco Barco::getTipo()
         
 int Barco::getSizeEnPiezas()
 {
-        return _piezas.size();
+    return _piezas.size();
 }
 
 string Barco::getNombreTipo()
@@ -69,10 +63,21 @@ int Barco::getPiezasSinTocar ()
     int aux = 0;
     std::vector<Pieza>::size_type sz = _piezas.size();
     for (std::size_t i=0; i<sz; i++)
-        if (!_piezas[i]->_tocada) aux++;
+        if (!_piezas[i]._tocada) aux++;
     
     return aux;
 }
+
+orientacion Barco::getOrientacion()
+{
+    return _orientado;
+}
+        
+void Barco::setOrientacion(orientacion ori)
+{
+    _orientado = ori;
+}
+
 
 
 

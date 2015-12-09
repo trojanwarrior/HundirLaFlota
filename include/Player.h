@@ -25,14 +25,25 @@ public:
     
     
     virtual void mueve() {cout << "metodo virtual 'mueve' clase base, no hace nada \n";}
+    virtual void colocaBarcos() { cout << "metodo virtual 'colocaBarcos' clase base, no hace nada \n"; }
     
     void AddBarco(tipoBarco tipo);
 
-    std::vector<Barco *> _barcos;
+    std::vector<Barco> _barcos;
     tCasillero _casilleroAtaque;
     tCasillero _casilleroDefensa;
 
     int _puntuacion;
+    
+    static const int NUM_MAX_LANCHAS = 5;
+    static const int NUM_MAX_ACORAZADOS = 3;
+    static const int NUM_MAX_PORTAVIONES = 2;
+    
+//private:
+    int num_lanchas;
+    int num_acorazados;
+    int num_portaviones;
+
 
 
 protected:

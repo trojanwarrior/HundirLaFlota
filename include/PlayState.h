@@ -55,8 +55,13 @@ class PlayState : public Ogre::Singleton<PlayState>, public GameState
   bool frameStarted (const Ogre::FrameEvent& evt);
   bool frameEnded (const Ogre::FrameEvent& evt);
 
+  //Callbacks del GUI
   //Quit del GUI
   bool quit(const CEGUI::EventArgs &e);
+  bool colocaPortaviones(const CEGUI::EventArgs &e);
+  bool colocaAcorazado(const CEGUI::EventArgs &e);
+  bool colocaLancha(const CEGUI::EventArgs &e);
+
 
 
   // Heredados de Ogre::Singleton.
@@ -74,6 +79,7 @@ class PlayState : public Ogre::Singleton<PlayState>, public GameState
   void createGUI();
   void createScene();
   void createPlayers();
+  void createGUIDefensaHumano();
 
   CEGUI::MouseButton convertirBotonMouse(OIS::MouseButtonID id);
 
@@ -90,9 +96,17 @@ class PlayState : public Ogre::Singleton<PlayState>, public GameState
   RaySceneQuery *_raySceneQuery;
   Ray setRayQuery(int posx, int posy, uint32 mask);
   SceneNode *_selectedNode;
+  SceneNode *_nodoColocador;
   
   bool _flip;
   int _rotaTablero;
+  bool _colocandoBarco;
+  
+  Ogre::Vector2 extraePosicionCasilla(string nombre);
+  void actualizaGUIColocacion(tipoBarco tipo);
+  void addBarcoAlTablero(Player *jugador, Barco barco);
+  Barco *_barcoSeleccionado;
+
   
   PlayManager pm;
   

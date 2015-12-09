@@ -8,7 +8,7 @@ class Cpu : public Player
     public:
        void mueve();
        void colocaBarcos();
-       void buscarAlojamiento(Barco *barco);
+       void buscarAlojamiento(Barco barco);
 };
 
 #endif

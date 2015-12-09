@@ -7,13 +7,19 @@
 
 using namespace std;
 
+  enum orientacion
+  {
+      horizontal = 0,
+      vertical = 1
+  };
+  
   enum tipoBarco
-        {
-            portaviones = 5, // 5 piezas
-            acorazado = 3,   // 4 piezas
-            lancha  = 1,       // 2 piezas
-            sinTipo = 0
-        };
+  {
+      portaviones = 5, // 5 piezas
+      acorazado = 3,   // 3 piezas
+      lancha  = 1,     // 1 pieza
+      sinTipo = 0
+  };
 
 class Barco
 {
@@ -30,16 +36,19 @@ class Barco
         ~Barco();
         
         tipoBarco getTipo();
+        orientacion getOrientacion();
+        void setOrientacion(orientacion ori);
         
         int getSizeEnPiezas();
         string getNombreTipo();
         int getPiezasSinTocar ();
         
-        std::vector<Pieza *> _piezas;
+        std::vector<Pieza> _piezas;
     
     
 private:
     tipoBarco _tipo;
+    orientacion _orientado;
     
     
     
