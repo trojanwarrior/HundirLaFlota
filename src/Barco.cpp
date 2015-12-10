@@ -3,7 +3,7 @@
 
 Barco::Barco(tipoBarco tipo)
 {
-    _tipo = tipo;
+     _tipo = tipo;
      //Creamos un barco mediante el tipo pasado
      _piezas.reserve(tipo);
      for (size_t i = 0; i<tipo; i++)
@@ -12,7 +12,7 @@ Barco::Barco(tipoBarco tipo)
 }
 
 //Constructor copia
-Barco::Barco(const Barco& obj)
+Barco::Barco(const Barco &obj)
 {
     _tipo = obj._tipo;
     _orientado = obj._orientado;
@@ -21,7 +21,7 @@ Barco::Barco(const Barco& obj)
 }
 
 //Sobrecarga asignacion
-Barco& Barco::operator =(const Barco &obj)
+Barco& Barco::operator=(const Barco &obj)
 {
     
     _piezas = obj._piezas;

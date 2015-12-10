@@ -29,6 +29,7 @@ bool Humano::colocaBarcos(Ogre::Vector2 posCasilla, Barco &barco)
             _casilleroDefensa[x][y]._vacia = false;
             _casilleroDefensa[x][y]._pieza = &barco._piezas[0];
             _barcos.push_back(barco);
+            return true;
         }
         else
         {
@@ -39,17 +40,23 @@ bool Humano::colocaBarcos(Ogre::Vector2 posCasilla, Barco &barco)
                      direccion = Ogre::Vector2(1,0);
                      auxX = auxX - derredor;
                      if (x + derredor <= 9 && x - derredor >= 0)
+                     {
                          for (int i=x-derredor; i<=x+derredor; ++i)
                              if (!_casilleroDefensa[i][y]._vacia)
                              {  ok = false; break; }// break del bucle for (ojo!)
+                     }                   
+                     else ok = false;
                      break;
                 case vertical: // miramos arriba y abajo
                      direccion = Ogre::Vector2(0,1);
                      auxY = auxY - derredor;
                      if (y + derredor <= 9 && y - derredor >= 0)
+                     {    
                          for (int i=y-derredor; i<=y+derredor; ++i)
                              if (!_casilleroDefensa[x][i]._vacia)
                              {  ok = false; break; } // break del bucle for (ojo!)
+                     }
+                     else ok = false;
                      break;
                 default: cout << "\n ¿BARCO SIN ORIENTACION?\n"; return false;
             }
@@ -66,11 +73,11 @@ bool Humano::colocaBarcos(Ogre::Vector2 posCasilla, Barco &barco)
                     _barcos.push_back(barco);
                     x += direccion.x;
                     y += direccion.y;
-                }    
+                }
+                
+                return true;    
             }
         }
-        
-        return true;
     }
 
     return false;

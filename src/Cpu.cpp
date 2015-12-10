@@ -1,8 +1,31 @@
 #include "Cpu.h"
 
+Cpu::Cpu()
+{
+    inicializaDirecciones();
+    _haTocado = false;
+    _haHundido = false; 
+}
+
+Cpu::~Cpu()
+{
+    
+}
+
+void Cpu::inicializaDirecciones()
+{
+    _pilaDirecciones.push(Ogre::Vector2(-1,0));  //a la derecha
+    _pilaDirecciones.push(Ogre::Vector2(1,0));   //a la izquierda
+    _pilaDirecciones.push(Ogre::Vector2(0,1));   //abajo
+    _pilaDirecciones.push(Ogre::Vector2(0,-1));  //arriba
+}
 
 void Cpu::mueve()
 {
+    if (_haTocado)
+        sigueAtacando();
+    else
+        ataqueAlAzar();
 }
 
 void Cpu::colocaBarcos()
@@ -127,6 +150,45 @@ void Cpu::buscarAlojamiento(Barco barco)
         j += direccion.y;
         
     }
-        
+}
+
+void Cpu::sigueAtacando()
+{
+    /// PELIAGUDO :D
     
+    if (_pilaDirecciones.empty())
+    {
+        inicializaDirecciones();
+        _casillaOrigen = _casillaTiro;
+    }   
+    
+    while (!inBounds(_casillaTiro + _pilaDirecciones.top()) && !_pilaDirecciones.empty())
+    {
+        _casillaAnterior = _casillaTiro;
+        _casillaTiro += _pilaDirecciones.top();
+    }
+    
+
+    
+}
+
+bool Cpu::inBounds(Ogre::Vector2 posicion)
+{
+    return (posicion.x >= 0 && posicion.x <=9 && posicion.y >= 0 && posicion.y <= 9);
+}
+
+void Cpu::ataqueAlAzar()
+{
+    bool casillaSinExplorar = false;
+    int x, y;
+    while (!casillaSinExplorar)
+    {
+        x = rand() % 9;
+        y = rand() % 9;
+        
+        if (_casilleroAtaque[x][y]._estado == neutro)
+            casillaSinExplorar = true;
+    }
+    
+    _casillaTiro = Ogre::Vector2(x,y);
 }

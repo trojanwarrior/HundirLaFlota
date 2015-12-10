@@ -34,7 +34,6 @@
 #define BARCO   1 << 1 // mascara para un barco, en realidad será una casilla donde haya un trozo de barco
 #define CASILLA 1 << 2
 
-
 class PlayState : public Ogre::Singleton<PlayState>, public GameState
 {
  public:
@@ -96,7 +95,7 @@ class PlayState : public Ogre::Singleton<PlayState>, public GameState
   RaySceneQuery *_raySceneQuery;
   Ray setRayQuery(int posx, int posy, uint32 mask);
   SceneNode *_selectedNode;
-  SceneNode *_nodoColocador;
+  SceneNode *_nodoCursor;
   
   bool _flip;
   int _rotaTablero;

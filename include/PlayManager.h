@@ -9,12 +9,21 @@ enum tipoPlayer
     cpu
 };
 
+enum estadoJuego
+{
+    inicio,
+    jugando,
+    fin
+};
+
 class PlayManager
 {
 public:
-    PlayManager();
+    PlayManager() : _colocando(true), _enJuego(false), _turnoEnCurso(false), _turno(0), _estado(inicio) {};
     ~PlayManager();
     
+    void setEstadoJuego(estadoJuego estado);
+    estadoJuego getEstadoJuego();
     void start();
     void inicializarPartida();
     void cambiaTurno();
@@ -27,10 +36,15 @@ public:
     
     std::vector<Player*> _jugadores;
     
+    void espera(bool wait);
+    bool espera();
     
     
-private:
-
+    bool _colocando;
+    bool _enJuego;
+    bool _turnoEnCurso;
+    int _turno;
+    estadoJuego _estado;
     
 
 };

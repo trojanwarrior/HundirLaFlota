@@ -7,15 +7,13 @@
 using namespace std;
 
 typedef std::vector< std::vector<Casilla> > tCasillero;
-//typedef std::vector<Casilla> tCasillero;
-
 
 class Player
 {
 public:
     Player() : _casilleroAtaque(10, std::vector<Casilla>(10)), _casilleroDefensa(10, std::vector<Casilla>(10)){};
     //Player() : _casilleroAtaque(std::vector<Casilla>(10)), _casilleroDefensa(std::vector<Casilla>(10)){};
-    ~Player();
+    ~Player(){};
     
     //Constructor de copia
     Player(const Player &obj);
@@ -39,21 +37,9 @@ public:
     static const int NUM_MAX_ACORAZADOS = 3;
     static const int NUM_MAX_PORTAVIONES = 2;
     
-//private:
     int num_lanchas;
     int num_acorazados;
     int num_portaviones;
-
-
-
-protected:
-
-    //typedef std::vector<Casilla> filaCasillas[10];
-    //std::vector<filaCasillas> _casilleroDefensa[10];
-    //std::vector<filaCasillas> _casilleroAtaque[10];
-    //std::vector< std::vector<Casilla> > _casilleroDefensa[10][10];
-    //std::vector< std::vector<Casilla> > _casilleroAtaque[10][10];
-    
 
 };
 
