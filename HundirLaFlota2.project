@@ -40,7 +40,6 @@
     <File Name="src/Barco.cpp"/>
     <File Name="src/Casilla.cpp"/>
     <File Name="src/Player.cpp"/>
-    <File Name="src/PlayManager.cpp"/>
     <File Name="src/Humano.cpp"/>
     <File Name="src/Pieza.cpp"/>
     <File Name="src/Cpu.cpp"/>
@@ -56,7 +55,6 @@
     <File Name="include/GetRecords.h"/>
     <File Name="include/Pieza.h"/>
     <File Name="include/Barco.h"/>
-    <File Name="include/PlayManager.h"/>
     <File Name="include/Player.h"/>
     <File Name="include/Casilla.h"/>
     <File Name="include/Humano.h"/>
@@ -95,7 +93,7 @@
         <RebuildCommand>make all mode=debug
 </RebuildCommand>
         <CleanCommand>make clean</CleanCommand>
-        <BuildCommand>make mode=debug</BuildCommand>
+        <BuildCommand>make mode=debug -j 8</BuildCommand>
         <PreprocessFileCommand/>
         <SingleFileCommand/>
         <MakefileGenerationCommand/>

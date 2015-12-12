@@ -34,6 +34,14 @@
 #define BARCO   1 << 1 // mascara para un barco, en realidad será una casilla donde haya un trozo de barco
 #define CASILLA 1 << 2
 
+enum estadoJuego
+{
+    inicio,
+    jugando,
+    animando,
+    fin
+};
+
 class PlayState : public Ogre::Singleton<PlayState>, public GameState
 {
  public:
@@ -79,6 +87,8 @@ class PlayState : public Ogre::Singleton<PlayState>, public GameState
   void createScene();
   void createPlayers();
   void createGUIDefensaHumano();
+  void createGUIAtaqueHumano();
+  void addSceneAtaque();
 
   CEGUI::MouseButton convertirBotonMouse(OIS::MouseButtonID id);
 

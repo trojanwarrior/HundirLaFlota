@@ -2,13 +2,16 @@
 
 Humano::Humano()
 {
-    num_lanchas = 0;
-    num_acorazados = 0;
-    num_portaviones = 0;
+    _num_lanchas = 0;
+    _num_acorazados = 0;
+    _num_portaviones = 0;
+    _tipo = humano;
+    _heAcabado= false;
 }
 
 void Humano::mueve()
 {
+    _heAcabado = false;
 }
 
 bool Humano::colocaBarcos(Ogre::Vector2 posCasilla, Barco &barco)

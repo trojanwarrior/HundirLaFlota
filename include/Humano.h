@@ -12,6 +12,11 @@ public:
     void mueve();
     bool colocaBarcos(Ogre::Vector2 posCasilla, Barco &barco);
     
+    void actualizaTableroAtaque();
+    void actualizaTableroDefensa();
+    
+    Ogre::Vector2 _casillaTiro;
+    
     
     
 };

@@ -4,6 +4,7 @@
 Barco::Barco(tipoBarco tipo)
 {
      _tipo = tipo;
+     _hundido = false;
      //Creamos un barco mediante el tipo pasado
      _piezas.reserve(tipo);
      for (size_t i = 0; i<tipo; i++)

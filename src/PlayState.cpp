@@ -76,7 +76,7 @@ void PlayState::enter ()
 void PlayState::createGUIDefensaHumano()
 {
 
-  if (pm._jugadores[0]->num_portaviones < pm._jugadores[0]->NUM_MAX_PORTAVIONES)
+  if (pm._jugadores[0]->_num_portaviones < pm._jugadores[0]->NUM_MAX_PORTAVIONES)
   {          
       CEGUI::Window* btnPortaviones = CEGUI::WindowManager::getSingleton ().createWindow ("TaharezLook/Button", "HLF/Portaviones");
       btnPortaviones->setText ("Portaviones");
@@ -87,7 +87,7 @@ void PlayState::createGUIDefensaHumano()
 
   }
   
-  if (pm._jugadores[0]->num_acorazados < pm._jugadores[0]->NUM_MAX_ACORAZADOS)
+  if (pm._jugadores[0]->_num_acorazados < pm._jugadores[0]->NUM_MAX_ACORAZADOS)
   {
       CEGUI::Window* btnAcorazado = CEGUI::WindowManager::getSingleton ().createWindow ("TaharezLook/Button", "HLF/Acorazado");
       btnAcorazado->setText ("Acorazado");
@@ -97,7 +97,7 @@ void PlayState::createGUIDefensaHumano()
       CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->addChild(btnAcorazado);
   }
 
-  if (pm._jugadores[0]->num_lanchas < pm._jugadores[0]->NUM_MAX_LANCHAS)
+  if (pm._jugadores[0]->_num_lanchas < pm._jugadores[0]->NUM_MAX_LANCHAS)
   {
       CEGUI::Window* btnLancha = CEGUI::WindowManager::getSingleton ().createWindow ("TaharezLook/Button", "HLF/Lancha");
       btnLancha->setText ("Lancha");
@@ -107,10 +107,72 @@ void PlayState::createGUIDefensaHumano()
       CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->addChild(btnLancha);
   }
   
+  if ( pm._jugadores[0]->_num_acorazados + pm._jugadores[0]->_num_lanchas + pm._jugadores[0]->_num_portaviones  == 
+       pm._jugadores[0]->NUM_MAX_ACORAZADOS + pm._jugadores[0]->NUM_MAX_LANCHAS + pm._jugadores[0]->NUM_MAX_PORTAVIONES)
+  {
+       addSceneAtaque();
+       createGUIAtaqueHumano();
+       pm.start();
+  }
+  
   
   
 }
 
+void PlayState::createGUIAtaqueHumano()
+{
+    
+    
+}
+
+void PlayState::addSceneAtaque()
+{
+  //Cogemos el tablero y le damos la vuelta    
+  SceneNode *nodeTableroCol = _sceneMgr->getSceneNode("tableroCol");
+  nodeTableroCol->roll(Ogre::Degree(180));
+  
+  //Casillas normales y casillas invisibles para hacer las consultas por RayQuery
+  stringstream sauxnode;
+  string s = "CasillaColATAQUE_";
+  string x = "CasillaATAQUE_";
+  
+  Ogre::Real offsetX = 0.0;
+  Ogre::Real offsetY = 0.0;
+  Ogre::Real origen = 7.2;
+  for (int i = 0; i < 10; i++)
+  {
+    offsetY = i * 0.6;
+    for (int j = 0; j < 10; j++)
+    {
+        offsetX = j * 0.6;
+                
+        sauxnode << s << j << "_" << i;
+        SceneNode *nodeCasillaCol = _sceneMgr->createSceneNode (sauxnode.str ());
+        Entity *entCasillaCol = _sceneMgr->createEntity (sauxnode.str (), "CasillaCol.mesh");
+        entCasillaCol->setQueryFlags(STAGE);
+        nodeCasillaCol->attachObject(entCasillaCol);
+        nodeCasillaCol->setVisible(false);
+        nodeTableroCol->addChild (nodeCasillaCol);
+        cout << "nodo " << sauxnode.str() << " creado. \n";
+        
+        sauxnode.str("");
+        sauxnode << x << j << "_" << i;
+        SceneNode *nodeCasilla = _sceneMgr->createSceneNode(sauxnode.str());
+        Entity *entCasilla = _sceneMgr->createEntity(sauxnode.str(), "Casilla.mesh");
+        entCasilla->getSubEntity(0)->setMaterialName("MaterialAgua");
+        entCasilla->setQueryFlags(CASILLA);
+        nodeCasilla->attachObject(entCasilla);
+        nodeTableroCol->addChild (nodeCasilla);
+        cout << "nodo " << sauxnode.str() << " creado. \n";
+        
+        nodeCasilla->setPosition(origen - j  - offsetX , nodeCasilla->getPosition().y-1, (origen - i - offsetY) * -1);
+        nodeCasillaCol->setPosition(origen - j - offsetX, nodeCasillaCol->getPosition().y-1, (origen - i - offsetY) * -1);
+        
+        sauxnode.str("");
+    }
+  }
+
+}
 
 
 void PlayState::createPlayers()
@@ -134,8 +196,7 @@ void PlayState::createPlayers()
     
     pm.addPlayer(humano);
     pm.addPlayer(cpu);
-    pm.espera(true);
-
+    pm.setEstadoJuego(inicio);
 }
 
 
@@ -175,13 +236,6 @@ void PlayState::createGUI ()
 
 void PlayState::createScene ()
 {
- /* 
-  StaticGeometry *tablero = _sceneMgr->createStaticGeometry ("Tablero");
-  Entity *entTablero = _sceneMgr->createEntity ("tablero.mesh");
-  tablero->addEntity (entTablero, Vector3 (0, 0, 0)); // Añadir la entidad a tablero siempre antes de llamar a build()
-  tablero->build ();
-*/
-  
   //Objeto movable "suelo" para consultar al sceneManager
   SceneNode *nodeTableroCol = _sceneMgr->createSceneNode("tableroCol");
   Entity *entTableroCol = _sceneMgr->createEntity("entTableroCol", "tableroCol.mesh");
@@ -189,8 +243,6 @@ void PlayState::createScene ()
   nodeTableroCol->attachObject(entTableroCol);
   nodeTableroCol->setVisible(true);
   _sceneMgr->getRootSceneNode()->addChild(nodeTableroCol);
-  //nodeTableroCol->setPosition(nodeTableroCol->getPosition().x,-10,nodeTableroCol->getPosition().z);
-
 
   //Casillas normales y casillas invisibles para hacer las consultas por RayQuery
   stringstream sauxnode;
@@ -226,26 +278,11 @@ void PlayState::createScene ()
         cout << "nodo " << sauxnode.str() << " creado. \n";
         
         nodeCasilla->setPosition(origen + j  + offsetX , nodeCasilla->getPosition().y+1, origen + i + offsetY);
-        nodeCasilla->setVisible(true);
         nodeCasillaCol->setPosition(origen + j + offsetX, nodeCasillaCol->getPosition().y+1, origen + i + offsetY);
         
         sauxnode.str("");
     }
   }
-  
-  // Comentario referente a la exportación de Blender a Ogre:
-  // Hay que tener cuidado a la hora de exportar las figuras y tener claro
-  // lo que se exporta. OgreToBlender exportará sólo la figura seleccionada
-  // y sus materiales (texturas) asociados. Por lo que es recomendable renombrar
-  // tanto los nombres de las figuras como de sus materiales asociados de lo
-  // contrario sobreescribirá aquellos que se llamen igual. Lo cual puede estar
-  // bien si pretendemos usar los mismos materiales para distintas figuras.
-  //  SceneNode *nodoBarquito = _sceneMgr->createSceneNode ("Barquito");
-  //  Entity *entBarquito = _sceneMgr->createEntity ("barquito", "barquito.mesh");
-  //  entBarquito->setQueryFlags(BARCO);
-  //  nodoBarquito->attachObject (entBarquito);
-  //  _sceneMgr->getSceneNode("Casilla_1_1")->addChild(nodoBarquito);
-  //  //_sceneMgr->getRootSceneNode ()->addChild (nodoBarquito);
 
   SceneNode *nodoLuz = _sceneMgr->createSceneNode ("Luces");
   _sceneMgr->setShadowTechnique (SHADOWTYPE_STENCIL_ADDITIVE);
@@ -371,20 +408,12 @@ bool PlayState::frameStarted(const Ogre::FrameEvent& evt)
   _deltaT = evt.timeSinceLastFrame; //Tiempo transcurrido desde que se pinto el último frame
   CEGUI::System::getSingleton().getDefaultGUIContext().injectTimePulse(_deltaT);
 
-  //int fps = 1.0 / _deltaT;                              //Para calcular el rendimiento
-
   _camera->moveRelative(_vtCamara * _deltaT * _tSpeed);
   if (_camera->getPosition().length() < 10.0) 
     _camera->moveRelative(-_vtCamara * _deltaT * _tSpeed);
     
-
-/*
-  _mecer = _mecer % 10;
-  if (!_mecer)
-      _mecer *= -1;
-  _sceneMgr->getSceneNode("Barquito")->roll(Ogre::Degree(_mecer * _deltaT));
-  _mecer++;
-*/  
+    
+  
   
   return true;
 }
@@ -419,10 +448,6 @@ void PlayState::keyPressed(const OIS::KeyEvent &e)
                 cout << "VTCamara " << _vtCamara << endl;
   }
   
-  cout << _camera->getPosition() << endl;
-  
-  _r = 0;
-  if(e.key == OIS::KC_R) _r+=180;
 
   // Tecla p --> PauseState.
   if (e.key == OIS::KC_P) {
@@ -496,7 +521,7 @@ void PlayState::mouseMoved(const OIS::MouseEvent &e)
       }
     }
       
-    if (_selectedNode) cout << _selectedNode->getName() << endl; // << " POSICION_X " << _selectedNode->getPosition().x << endl; //<< "," << _selectedNode->getPosition().y <<
+    if (_selectedNode) cout << _selectedNode->getName() << " POSICION " << _selectedNode->getPosition()<< endl; //<< "," << _selectedNode->getPosition().y <<
                                                     //"," << _selectedNode->getPosition().z << endl;
     if (_colocandoBarco)
     {
@@ -577,14 +602,14 @@ void PlayState::addBarcoAlTablero(Player *jugador, Barco barco)
     string e = "ent";
     switch (barco.getTipo())
     {
-        case lancha:         nombreNodo << n << "Lancha_" << jugador->num_lanchas;
-                             nombreEnt << e << "Lancha_" << jugador->num_lanchas; 
+        case lancha:         nombreNodo << n << "Lancha_" << jugador->_num_lanchas;
+                             nombreEnt << e << "Lancha_" << jugador->_num_lanchas; 
                              mesh << "Lancha.mesh"; break;
-        case acorazado:      nombreNodo << n << "Acorazado_" << jugador->num_acorazados;
-                             nombreEnt << e << "Acorazado_" << jugador->num_acorazados;
+        case acorazado:      nombreNodo << n << "Acorazado_" << jugador->_num_acorazados;
+                             nombreEnt << e << "Acorazado_" << jugador->_num_acorazados;
                              mesh << "Acorazado.mesh"; break;
-        case portaviones:    nombreNodo << n << "Portaviones_" << jugador->num_portaviones;
-                             nombreEnt << e << "Portaviones_" << jugador->num_portaviones; 
+        case portaviones:    nombreNodo << n << "Portaviones_" << jugador->_num_portaviones;
+                             nombreEnt << e << "Portaviones_" << jugador->_num_portaviones; 
                              mesh << "Portaviones.mesh"; break; 
         default: ;
     }
@@ -611,9 +636,9 @@ void PlayState::actualizaGUIColocacion(tipoBarco tipo)
 {
     switch (tipo)
     {
-        case lancha:        pm._jugadores[0]->num_lanchas++; break;
-        case acorazado:     pm._jugadores[0]->num_acorazados++; break;
-        case portaviones:   pm._jugadores[0]->num_portaviones++; break;
+        case lancha:        pm._jugadores[0]->_num_lanchas++; break;
+        case acorazado:     pm._jugadores[0]->_num_acorazados++; break;
+        case portaviones:   pm._jugadores[0]->_num_portaviones++; break;
         default: ;
     }
     

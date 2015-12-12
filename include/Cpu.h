@@ -13,19 +13,18 @@ class Cpu : public Player
        ~Cpu();
        void mueve();
        void colocaBarcos();
+       resultadoTiro resultadoTiroOponente(Ogre::Vector2 tiro);
        void buscarAlojamiento(Barco barco);
        
-       bool _haTocado;
-       bool _haHundido;
-       Ogre::Vector2 _casillaAnterior;
-       Ogre::Vector2 _casillaTiro;
-       Ogre::Vector2 _casillaOrigen;
+       resultadoTiro _resultado;
+       bool _barcoEncontrado;
        
     private:
         void sigueAtacando();
         void ataqueAlAzar();
         bool inBounds(Ogre::Vector2 posicion);
-        
+        void actualizaTableroAtaque();
+        estadoCasilla convierteEstadoTiroAEstadoCasilla(resultadoTiro res);
         std::stack<Ogre::Vector2> _pilaDirecciones;
         void inicializaDirecciones();
        

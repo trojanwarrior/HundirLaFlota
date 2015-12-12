@@ -8,22 +8,17 @@ enum estadoCasilla
 {
     neutro,
     agua,
-    tocado
+    acierto
 };
 
 class Casilla
 {
 public:
-    //Constructores por defecto.
-    //Casilla() : _posicion(0,0), _estado(neutro), _pieza(Pieza(Ogre::Vector2(0,0),false)){};
     Casilla() : _posicion(0,0), _estado(neutro), _pieza(NULL), _vacia(true) {};
     Casilla(Ogre::Vector2 posicion, estadoCasilla estado, Pieza *pieza, bool vacia) : _posicion(posicion), _estado(estado), _pieza(pieza), _vacia(vacia){};
-    //Casilla(Ogre::Vector2 posicion, estadoCasilla estado, Pieza pieza) : _posicion(posicion), _estado(estado), _pieza(pieza){};
-    
     Casilla(const Casilla &obj);                            //Constructor de copia
     Casilla& operator=(const Casilla &obj);          //Sobrecarga de asignacion.
-    
-    ~Casilla(); //Destructor
+    ~Casilla(); //Destructor    
     
     Ogre::Vector2 _posicion;
     estadoCasilla _estado;

@@ -25,7 +25,7 @@ class Barco
 {
     public:
         
-        Barco() : _tipo(sinTipo){};
+        Barco() : _hundido(false), _tipo(sinTipo){};
         Barco(tipoBarco tipo);
         
         //Constructor copia
@@ -44,6 +44,8 @@ class Barco
         int getPiezasSinTocar ();
         
         std::vector<Pieza> _piezas;
+        
+        bool _hundido;
     
     
 private:
