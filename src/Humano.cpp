@@ -6,12 +6,13 @@ Humano::Humano()
     _num_acorazados = 0;
     _num_portaviones = 0;
     _tipo = humano;
-    //_heAcabado= false;
+    _puntuacion = 0;
+
 }
 
 void Humano::mueve()
 {
-    //_heAcabado = false;
+
 }
 
 
@@ -31,7 +32,7 @@ bool Humano::colocaBarcos(Ogre::Vector2 posCasilla, Barco &barco)
         {
             barco._piezas[0]._posicion = posCasilla;
             _casilleroDefensa[x][y]._vacia = false;
-            _casilleroDefensa[x][y]._pieza = &barco._piezas[0];
+            _casilleroDefensa[x][y]._pieza = barco._piezas[0];
             _barcos.push_back(barco);
             return true;
         }
@@ -73,11 +74,11 @@ bool Humano::colocaBarcos(Ogre::Vector2 posCasilla, Barco &barco)
                 {
                     _casilleroDefensa[x][y]._vacia = false;
                     barco._piezas[n]._posicion = Ogre::Vector2(x,y);
-                    _casilleroDefensa[x][y]._pieza = &barco._piezas[n];
-                    _barcos.push_back(barco);
+                    _casilleroDefensa[x][y]._pieza = barco._piezas[n];
                     x += direccion.x;
                     y += direccion.y;
                 }
+                _barcos.push_back(barco);
                 
                 return true;    
             }

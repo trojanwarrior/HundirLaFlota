@@ -44,7 +44,6 @@ class Barco
         int getPiezasSinTocar ();
         
         std::vector<Pieza> _piezas;
-        
         bool _hundido;
     
     

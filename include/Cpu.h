@@ -17,6 +17,7 @@ class Cpu : public Player
        resultadoTiro resultadoTiroOponente(Ogre::Vector2 tiro);
        void buscarAlojamiento(Barco &barco);
        bool _barcoEncontrado;
+       int _contadorHundidos;
        
     private:
         void sigueAtacando();

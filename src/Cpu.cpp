@@ -6,7 +6,9 @@ Cpu::Cpu()
     _resultado = errado;
     _tipo = cpu;
     _barcoEncontrado = false;
-    //_heAcabado = false;
+    _puntuacion = 0;
+    _contadorHundidos = 0;
+    
 }
 
 Cpu::~Cpu()
@@ -30,17 +32,19 @@ void Cpu::mueve()
     actualizaTableroAtaque(_resultado); //nulo es un estado de resultado inicial, así que lo ignoramos.
     switch(_resultado)      // resultado del último tiro, igual a nulo al empezar a jugar.
     {
-        case nulo:          ataqueAlAzar(); break;
+        case nulo:          ataqueAlAzar(); cout<< "Estado inicial ataqueAlAzar()\n"; break;
         case errado:        if (!_barcoEncontrado)
-                                ataqueAlAzar();  
+                                {ataqueAlAzar();  cout <<"Tiro errado: ataqueAlAzar()\n";}
                             else 
-                                sigueAtacando(); 
+                                {sigueAtacando(); cout <<"Tiro errado pero barco a la vista sigueAtacando()\n";}
                             break;
         case tocadoHundido: _barcoEncontrado = false; //el barco que encontramos lo hemos mandado al fondo del mar, luego habrá que encontrar otro.
-                            ataqueAlAzar();  break;
+                            _contadorHundidos++;
+                            cout << "Barcos hundidos " << _contadorHundidos;
+                            ataqueAlAzar();  cout << "TocadoHundido, ataqueAlAzar()\n"; break;
                             
         case tocado:        _barcoEncontrado = true;
-                            sigueAtacando();
+                            sigueAtacando(); cout << "Tocado, sigueAtacando()\n";
     }
     
     
@@ -58,21 +62,7 @@ void Cpu::colocaBarcos()
     {
         std::vector<Barco>::iterator it;
         for (it = _barcos.begin(); it != _barcos.end(); ++it)
-        {
-/*            for (size_t y = 0; y < _casilleroDefensa.size(); y ++)
-            {    
-                cout << "\n";
-                for (size_t x = 0; x < _casilleroDefensa[y].size(); x ++)
-                    cout << _casilleroDefensa[x][y]._vacia << " ";
-            }
-            cout << "\n\n";*/
-            
             buscarAlojamiento(*it);
-            
-        }
-        
-        
-        
     }
 }
 
@@ -166,7 +156,7 @@ void Cpu::buscarAlojamiento(Barco &barco)
     for (int n = 0; n<=espacio; n++)
     {
         _casilleroDefensa[i][j]._vacia = false;    
-        _casilleroDefensa[i][j]._pieza = &barco._piezas[n];
+        _casilleroDefensa[i][j]._pieza = barco._piezas[n];
         cout << "[" << i << "," << j << "]";
         barco._piezas[n]._posicion.x = i;
         barco._piezas[n]._posicion.y = j;
@@ -228,11 +218,19 @@ void Cpu::ataqueAlAzar()
     
     while (!casillaSinExplorar)
     {
+        try
+        {
         x = rand() % 9;
         y = rand() % 9;
         
         if (_casilleroAtaque[x][y]._estado == neutro)
             casillaSinExplorar = true;
+        
+        }
+        catch(...)
+        {
+            cout << "mierda!!!";
+        }
     }
     
     _casillaTiro = Ogre::Vector2(x,y);

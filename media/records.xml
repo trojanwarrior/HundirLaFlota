@@ -1,4 +1,10 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
- <record_set>
-   <record  nombre="pepe" puntuacion="100"/>
- </record_set>
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<record_set>
+
+  <record nombre="Mario" puntuacion="3340"/>
+
+  <record nombre="maquina" puntuacion="1100"/>
+
+  <record nombre="temp" puntuacion="1100"/>
+
+</record_set>

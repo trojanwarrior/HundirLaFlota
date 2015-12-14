@@ -28,10 +28,14 @@
 #include "Player.h"
 #include "Humano.h"
 #include "Cpu.h"
+#include "SetRecords.h"
 
 #define STAGE   1 << 0 // mascara para el escenario
 #define BARCO   1 << 1 // mascara para un barco, en realidad será una casilla donde haya un trozo de barco
 #define CASILLA 1 << 2
+
+#define PUNTOS_TOCADO 10
+#define PUNTOS_HUNDIDO 50
 
 enum estadoJuego
 {
@@ -68,6 +72,8 @@ class PlayState : public Ogre::Singleton<PlayState>, public GameState
   bool colocaAcorazado(const CEGUI::EventArgs &e);
   bool colocaLancha(const CEGUI::EventArgs &e);
   bool siguiente(const CEGUI::EventArgs &e);
+  bool guardaRecord(const CEGUI::EventArgs &e);
+  bool menu(const CEGUI::EventArgs &e);
 
 
 
@@ -93,9 +99,12 @@ class PlayState : public Ogre::Singleton<PlayState>, public GameState
   void updateJuegoCpu();
   void ponMisilacoTableroDefensa(tipoPlayer tipo);
   void ponMisilacoTableroAtaque();
-  void activaGUINext();
   void createGUINext();
+  void createGUIInfo();
+  void actualizaGUIInfo();
+  void activaGUIGameOver();
   bool hayGanador();
+  void puntua();
 
   CEGUI::MouseButton convertirBotonMouse(OIS::MouseButtonID id);
 
@@ -119,13 +128,16 @@ class PlayState : public Ogre::Singleton<PlayState>, public GameState
   Ogre::Vector2 extraePosicionCasilla(string nombre);
   void actualizaGUIColocacion(tipoBarco tipo);
   void addBarcoAlTablero(Player *jugador, Barco barco);
-  Barco *_barcoSeleccionado;
+  Barco _barcoSeleccionado;
   std::vector<Player *> _jugadores;
   estadoJuego _estado;
   bool _turnoEnCurso;
   int _idJugador;
   bool _wait;
-  
+  int _enRacha;
+  Player *_ganador;
+  SetRecords *_guardadorRecords;
+  bool _volverMenu;
   
   
 };

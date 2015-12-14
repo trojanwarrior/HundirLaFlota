@@ -10,7 +10,6 @@ Pieza::Pieza(const Pieza& obj)
 //Sobrecarga de asignación.
 Pieza& Pieza::operator =(const Pieza &obj)
 {
-    std::cout <<obj._posicion << std::endl;
     _posicion = obj._posicion;
     _tocada = obj._tocada;
     

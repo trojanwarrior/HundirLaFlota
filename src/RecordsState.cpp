@@ -91,7 +91,7 @@ void RecordsState::createGUI()
   try
   {
       stringstream aux;
-      aux << "./media/" << RECORDS_FILENAME;
+      aux << "media/" << RECORDS_FILENAME;
       string a = aux.str();
       _rec->readRecords(a); //Genera el vector de records. Si no lo llamamos primero nunca tendremos records
   }

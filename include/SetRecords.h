@@ -18,30 +18,32 @@ using namespace std;
     
 class SetRecords
 {
-    SetRecords(string nombre, int puntuacion);
-    ~SetRecords();
-    
-    int serializeDOM(DOMNode* node);
-    bool recuperaRecords();
-    bool entra();
-    void guardaRecord();
-    
-    
-    DOMLSSerializer* _serializer;
-    DOMImplementation *impl;
-    XMLFormatTarget *myFormTarget;
-    DOMLSOutput* theOutput;
-    
+    public:
+        SetRecords();
+        ~SetRecords();
+        
+        int serializeDOM(DOMNode* node);
+        bool recuperaRecords();
+        bool entra();
+        void guardaRecord();
+        void setRecordAIntroducir(string nombre, int puntuacion);
+        
+        
+        DOMLSSerializer* _serializer;
+        DOMImplementation *_impl;
+        XMLFormatTarget *_myFormTarget;
+        DOMLSOutput* _theOutput;
+        
 
-    
-    
-    
-    GetRecords *_rec;
-    string _nombre;
-    int _puntuacion;
-    record _record;
-    
-    std::list<record> _listaRecords;
+        
+        
+        
+        GetRecords *_rec;
+        string _nombre;
+        int _puntuacion;
+        record _record;
+        
+        std::list<record> _listaRecords;
 };
 
 /*

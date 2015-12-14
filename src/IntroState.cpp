@@ -8,8 +8,26 @@ void IntroState::enter ()
 {
   _root = Ogre::Root::getSingletonPtr();
 
-  _sceneMgr = _root->createSceneManager(Ogre::ST_GENERIC, "SceneManager");
-  _camera = _sceneMgr->createCamera("IntroCamera");
+  try
+  {
+    _sceneMgr = _root->createSceneManager(Ogre::ST_GENERIC, "SceneManager");
+  }
+  catch(...)
+  {
+    _sceneMgr = _root->getSceneManager("SceneManager");
+  }
+  
+  try
+  {
+      _camera = _sceneMgr->createCamera("IntroCamera");
+  }
+  catch(...)
+  {
+      _camera = _sceneMgr->getCamera("IntroCamera");
+      _rendererCEGUI->destroySystem();
+  }
+  
+  //_camera = _sceneMgr->createCamera("IntroCamera");
   _viewport = _root->getAutoCreatedWindow()->addViewport(_camera);
   _viewport->setBackgroundColour(Ogre::ColourValue(1.0, 1.0, 1.0));
   

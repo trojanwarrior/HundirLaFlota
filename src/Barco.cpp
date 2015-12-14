@@ -5,8 +5,9 @@ Barco::Barco(tipoBarco tipo)
 {
      _tipo = tipo;
      _hundido = false;
+     _orientado = horizontal;
      //Creamos un barco mediante el tipo pasado
-     _piezas.reserve(tipo);
+//     _piezas.reserve(tipo);
      for (size_t i = 0; i<tipo; i++)
          _piezas.push_back(Pieza());
      
@@ -18,6 +19,7 @@ Barco::Barco(const Barco &obj)
     _tipo = obj._tipo;
     _orientado = obj._orientado;
     _piezas = obj._piezas;
+    _hundido = obj._hundido;
     
 }
 
@@ -28,6 +30,7 @@ Barco& Barco::operator=(const Barco &obj)
     _piezas = obj._piezas;
     _tipo = obj._tipo;
     _orientado = obj._orientado;
+    _hundido = obj._hundido;
 
     return *this;
 }

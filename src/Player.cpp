@@ -26,7 +26,10 @@ Player& Player::operator=(const Player &obj)
 
 resultadoTiro Player::resultadoTiroOponente(Ogre::Vector2 tiro)
 {
-    resultadoTiro res = errado;
+    if (getTipoJugador() == humano)
+        cout << "me paro\n";
+    
+    resultadoTiro  res = errado;
     for (size_t i=0; i<_barcos.size(); i++)
     {
         if (!_barcos[i]._hundido)
@@ -43,7 +46,6 @@ resultadoTiro Player::resultadoTiroOponente(Ogre::Vector2 tiro)
                 _barcos[i]._hundido = true;
                 res = tocadoHundido; break; // Si lo hemos hundido ya no seguimos mirando mas barcos
             }
-            
         }
     }           
     
@@ -113,8 +115,8 @@ const char * Player::getNombreTipoJugador()
 {
     switch (getTipoJugador())
     {
-        case humano: return "humano";
-        case cpu: return "cpu";
+        case humano: return "Humano";
+        case cpu: return "Cpu";
         default: return "";
     }
 }

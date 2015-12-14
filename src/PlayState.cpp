@@ -1,5 +1,6 @@
 #include "PlayState.h"
 #include "PauseState.h"
+#include "IntroState.h"
 
 
 
@@ -9,6 +10,7 @@ template<> PlayState* Ogre::Singleton<PlayState>::msSingleton = 0;
 
 void PlayState::enter ()
 {
+    
     createPlayers();
 
 /*
@@ -29,6 +31,7 @@ void PlayState::enter ()
   _sceneMgr->setAmbientLight (Ogre::ColourValue (1, 1, 1));
 
   _camera = _sceneMgr->getCamera ("IntroCamera");
+  //_viewport = _root->getAutoCreatedWindow()->getViewport(0);
   _viewport = _root->getAutoCreatedWindow()->addViewport(_camera);
   double width = _viewport->getActualWidth ();
   double height = _viewport->getActualHeight ();
@@ -38,6 +41,7 @@ void PlayState::enter ()
   //Tiempo entre frame y frame
   _deltaT = 0;
 
+   
   //Creamos la escena
   createScene ();
   //Gui
@@ -62,8 +66,11 @@ void PlayState::enter ()
   _turnoEnCurso = true;
   _idJugador = 0;
   _wait = false;
+  _enRacha = 1;
+  _ganador = NULL;
+  _volverMenu = false;
   
-
+  //activaGUIGameOver();
 }
 
 void PlayState::createGUIDefensaHumano()
@@ -104,7 +111,8 @@ void PlayState::createGUIDefensaHumano()
        _jugadores[0]->NUM_MAX_ACORAZADOS + _jugadores[0]->NUM_MAX_LANCHAS + _jugadores[0]->NUM_MAX_PORTAVIONES)
   {
        addSceneAtaque();
-       createGUIAtaqueHumano();
+       createGUINext(); 
+       createGUIInfo();
        _turnoEnCurso = true;
        _estado = jugando;
   }
@@ -179,6 +187,7 @@ void PlayState::createPlayers()
     cpu->AddBarco(acorazado);
     cpu->AddBarco(acorazado);
     cpu->AddBarco(acorazado);
+    cpu->AddBarco(lancha);
     cpu->AddBarco(lancha);
     cpu->AddBarco(lancha);
     cpu->AddBarco(lancha);
@@ -310,8 +319,10 @@ bool PlayState::colocaPortaviones(const CEGUI::EventArgs &e)
         entBarco = _sceneMgr->getEntity("entPortaviones");
         entBarco->setQueryFlags(BARCO);
         _nodoCursor->attachObject(entBarco);
-        _barcoSeleccionado = new Barco(portaviones);
-        _barcoSeleccionado->setOrientacion(horizontal);
+        //_barcoSeleccionado = new Barco(portaviones);
+        //_barcoSeleccionado->setOrientacion(horizontal);
+        _barcoSeleccionado = Barco(portaviones);
+        _barcoSeleccionado.setOrientacion(horizontal);
         _nodoCursor->setVisible(true);
         _colocandoBarco = true;
     }
@@ -337,8 +348,11 @@ bool PlayState::colocaAcorazado(const CEGUI::EventArgs &e)
         entBarco = _sceneMgr->getEntity("entAcorazado");
         entBarco->setQueryFlags(BARCO);
         _nodoCursor->attachObject(entBarco);
-        _barcoSeleccionado = new Barco(acorazado);
-        _barcoSeleccionado->setOrientacion(horizontal);
+        //_barcoSeleccionado = new Barco(acorazado);
+        //_barcoSeleccionado->setOrientacion(horizontal);
+        _barcoSeleccionado = Barco(acorazado);
+        _barcoSeleccionado.setOrientacion(horizontal);
+
         _nodoCursor->setVisible(true);
         _colocandoBarco = true;
     }
@@ -364,8 +378,11 @@ bool PlayState::colocaLancha(const CEGUI::EventArgs &e)
         entBarco = _sceneMgr->getEntity("entLancha");
         entBarco->setQueryFlags(BARCO);
         _nodoCursor->attachObject(entBarco);
-        _barcoSeleccionado = new Barco(lancha);
-        _barcoSeleccionado->setOrientacion(horizontal);
+        //_barcoSeleccionado = new Barco(lancha);
+        //_barcoSeleccionado->setOrientacion(horizontal);
+
+        _barcoSeleccionado =  Barco(lancha);
+        _barcoSeleccionado.setOrientacion(horizontal);
         _nodoCursor->setVisible(true);
         _colocandoBarco = true;
     }
@@ -407,46 +424,135 @@ bool PlayState::frameStarted(const Ogre::FrameEvent& evt)
   if (_camera->getPosition().length() < 10.0) 
     _camera->moveRelative(-_vtCamara * _deltaT * _tSpeed);
     
-//  if (_animState)
-//  {
-//      _animState->setEnabled(true);
-//      _animState->setLoop(true);
-//  }
   
-  if (!_wait)
+  if (_estado == jugando)
   {
-      if (!_turnoEnCurso)
+      actualizaGUIInfo();
+      if (!_wait)
       {
-          _idJugador++;
-          _sceneMgr->getSceneNode("tableroCol")->roll(Ogre::Degree(180));
-          _turnoEnCurso = true;
-      }
+          if (!hayGanador())
+          {
+              if (!_turnoEnCurso)
+              {
+                  _idJugador++;
+                  _sceneMgr->getSceneNode("tableroCol")->roll(Ogre::Degree(180));
+                  _turnoEnCurso = true;
+              }
 
-      _idJugador = _idJugador % _jugadores.size();
-          
-      
-      //cout << "\n Tipo Jugador " << (_jugadores[_idJugador]->getTipoJugador()==cpu?"cpu":"humano");
-      
-      if (_jugadores[_idJugador]->getTipoJugador() == cpu)
-          updateJuegoCpu();
-          
-      
-  }
-  else
-  {
-      if (hayGanador())
-          _estado = fin;
+              _idJugador = _idJugador % _jugadores.size();
+                  
+              
+              //cout << "\n Tipo Jugador " << (_jugadores[_idJugador]->getTipoJugador()==cpu?"cpu":"humano");
+              
+              if (_jugadores[_idJugador]->getTipoJugador() == cpu)
+                  updateJuegoCpu();
+           }
+      }
+      else
+      {
+          if (hayGanador())
+          {
+              cout << "HAY GANADOR" << endl;
+              _estado = fin;
+              activaGUIGameOver();
+            
+          }
+      }
   }
   
   return true;
 }
 
+void PlayState::activaGUIGameOver()
+{
+      
+  CEGUI::Window* marcoGameOver = CEGUI::WindowManager::getSingleton().createWindow ("TaharezLook/FrameWindow", "marcoGameOver");
+  marcoGameOver->setText("GAME OVER");
+  marcoGameOver->setSize (CEGUI::USize (CEGUI::UDim (0.50, 0), CEGUI::UDim (0.50, 0)));
+  marcoGameOver->setPosition (CEGUI::UVector2 (CEGUI::UDim (0.20,0), CEGUI::UDim (0.01, 0)));
+  CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->addChild(marcoGameOver);
+
+  _guardadorRecords = new SetRecords();
+  _guardadorRecords->setRecordAIntroducir("temp",1100);
+  
+  if (_guardadorRecords->entra())
+  {
+      CEGUI::Window* lblPlayer = CEGUI::WindowManager::getSingleton().createWindow ("TaharezLook/Label", "lblPlayer");
+      lblPlayer->setText ("NOMBRE:");
+      lblPlayer->setSize (CEGUI::USize (CEGUI::UDim (0.30, 0), CEGUI::UDim (0.1, 0)));
+      lblPlayer->setPosition (CEGUI::UVector2 (CEGUI::UDim (0.1,0), CEGUI::UDim (0.11, 0)));
+      CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("marcoGameOver")->addChild(lblPlayer);
+
+      CEGUI::Window* txtNombre = CEGUI::WindowManager::getSingleton().createWindow ("TaharezLook/Editbox", "txtNombre");
+      txtNombre->setText ("");
+      txtNombre->setSize (CEGUI::USize (CEGUI::UDim (0.50, 0), CEGUI::UDim (0.1, 0)));
+      txtNombre->setPosition (CEGUI::UVector2 (CEGUI::UDim (0.33,0), CEGUI::UDim (0.11, 0)));
+      CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("marcoGameOver")->addChild(txtNombre);
+      
+      CEGUI::Window* btnGuardarRecord = CEGUI::WindowManager::getSingleton().createWindow ("TaharezLook/Button", "btnGuardarRecord");
+      btnGuardarRecord->setText("Guardar Record");
+      btnGuardarRecord->setSize (CEGUI::USize (CEGUI::UDim (0.15, 0), CEGUI::UDim (0.10, 0)));
+      btnGuardarRecord->setPosition (CEGUI::UVector2 (CEGUI::UDim (0.70,0), CEGUI::UDim (0.43, 0)));
+      btnGuardarRecord->subscribeEvent (CEGUI::PushButton::EventClicked,CEGUI::Event::Subscriber (&PlayState::guardaRecord, this));
+      CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("marcoGameOver")->addChild(btnGuardarRecord);
+      
+  }
+
+  CEGUI::Window* lblPuntuacion = CEGUI::WindowManager::getSingleton().createWindow ("TaharezLook/Label", "lblPuntuacion");
+  stringstream s;
+  s << "PUNTUACION: " <<  _jugadores[_idJugador]->_puntuacion;
+  lblPuntuacion->setText (s.str());
+  lblPuntuacion->setSize (CEGUI::USize (CEGUI::UDim (0.30, 0), CEGUI::UDim (0.1, 0)));
+  lblPuntuacion->setPosition (CEGUI::UVector2 (CEGUI::UDim (0.1,0), CEGUI::UDim (0.30, 0)));
+  CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("marcoGameOver")->addChild(lblPuntuacion);
+  
+  CEGUI::Window* btnMenuPpal = CEGUI::WindowManager::getSingleton().createWindow ("TaharezLook/Button", "btnMenuPpal");
+  btnMenuPpal->setText("Menu ppal.");
+  btnMenuPpal->setSize (CEGUI::USize (CEGUI::UDim (0.20, 0), CEGUI::UDim (0.10, 0)));
+  btnMenuPpal->setPosition (CEGUI::UVector2 (CEGUI::UDim (0.20,0), CEGUI::UDim (0.43, 0)));
+  btnMenuPpal->subscribeEvent (CEGUI::PushButton::EventClicked,CEGUI::Event::Subscriber (&PlayState::menu, this));
+  CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("marcoGameOver")->addChild(btnMenuPpal);
+    
+/*    
+  _guardadorRecords = new SetRecords();
+  _guardadorRecords->setRecordAIntroducir("maquina",1100);
+  if (_guardadorRecords->entra())
+      _guardadorRecords->guardaRecord();
+    
+    if (_guardadorRecords) delete _guardadorRecords;
+*/
+  
+    
+}
+
+bool PlayState::guardaRecord(const CEGUI::EventArgs &e)
+{
+    if (_guardadorRecords)
+    {
+        string nombre = CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("marcoGameOver")->getChild("txtNombre")->getText().c_str();
+        _guardadorRecords->setRecordAIntroducir(nombre,_jugadores[_idJugador]->_puntuacion);
+        _guardadorRecords->guardaRecord();
+         delete _guardadorRecords;
+    }
+
+    return true;
+}
+
+bool PlayState::menu(const CEGUI::EventArgs &e)
+{
+    _volverMenu = true;
+    
+    return true;
+}
+
+
 bool PlayState::hayGanador()
 {
     bool res = false;
     for (size_t i = 0; i<_jugadores.size(); ++i)
-        res = _jugadores[i]->hePerdido();
+        if ((res = _jugadores[i]->hePerdido())) break;
     
+    //cout << "Ganador? " << res << endl;
     return res;
 }
 
@@ -458,23 +564,30 @@ void PlayState::updateJuegoCpu()
     {
         _jugadores[_idJugador]->coutTableroAtaque();
         _jugadores[_idJugador]->coutTableroDefensa();
+        cout << "la cpu va a mover \n";
         _jugadores[_idJugador]->mueve(); // Player cpu actualizará la variable miembro _casillaTiro, luego preguntamos que ha pasado.
+        cout << "la cpu a elegido moverse a " << _jugadores[_idJugador]->_casillaTiro  << endl;
         ponMisilacoTableroDefensa(_jugadores[_idJugador]->getTipoJugador());
         _jugadores[_idJugador]->_resultado = _jugadores[(_idJugador+1)%2]->resultadoTiroOponente(_jugadores[_idJugador]->_casillaTiro);
+        _enRacha++;
+        puntua();
     }while(_jugadores[_idJugador]->_resultado != errado);
     
+    _enRacha = 1;
+    _wait = true;
     _turnoEnCurso = false;
-    activaGUINext();
 }
 
-void PlayState::activaGUINext()
+void PlayState::puntua()
 {
-    _renderer->destroySystem();
-    createGUI();
-    createGUINext();
-    _wait = true;
-    
+    switch(_jugadores[_idJugador]->_resultado)
+    {
+        case tocado:        _jugadores[_idJugador]->_puntuacion += PUNTOS_TOCADO * _enRacha; break;
+        case tocadoHundido: _jugadores[_idJugador]->_puntuacion += PUNTOS_HUNDIDO * _enRacha; break;
+        default:;
+    }
 }
+
 
 void PlayState::createGUINext()
 {
@@ -482,9 +595,45 @@ void PlayState::createGUINext()
   CEGUI::Window* btnNext = CEGUI::WindowManager::getSingleton ().createWindow ("TaharezLook/Button", "HLF/NextButton");
   btnNext->setText ("NEXT");
   btnNext->setSize (CEGUI::USize (CEGUI::UDim (0.15, 0), CEGUI::UDim (0.05, 0)));
-  btnNext->setPosition (CEGUI::UVector2 (CEGUI::UDim (0.50, 0), CEGUI::UDim (0.01, 0)));
+  btnNext->setPosition (CEGUI::UVector2 (CEGUI::UDim (0.01,0), CEGUI::UDim (0.01, 0)));
   btnNext->subscribeEvent (CEGUI::PushButton::EventClicked,CEGUI::Event::Subscriber (&PlayState::siguiente, this));
   CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->addChild(btnNext);
+}
+
+void PlayState::createGUIInfo()
+{
+  CEGUI::Window* btnNext = CEGUI::WindowManager::getSingleton ().createWindow ("TaharezLook/Button", "HLF/NextButton");
+  btnNext->setText ("NEXT");
+  btnNext->setSize (CEGUI::USize (CEGUI::UDim (0.15, 0), CEGUI::UDim (0.05, 0)));
+  btnNext->setPosition (CEGUI::UVector2 (CEGUI::UDim (0.01,0), CEGUI::UDim (0.01, 0)));
+  btnNext->subscribeEvent (CEGUI::PushButton::EventClicked,CEGUI::Event::Subscriber (&PlayState::siguiente, this));
+  CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->addChild(btnNext);
+    
+  CEGUI::Window* txtPuntos = CEGUI::WindowManager::getSingleton().createWindow ("TaharezLook/StaticText", "txtPuntos");
+  std::stringstream s;
+  s << "Puntos: " << _jugadores[_idJugador]->_puntuacion;
+  txtPuntos->setText (s.str());
+  txtPuntos->setSize (CEGUI::USize (CEGUI::UDim (0.15, 0), CEGUI::UDim (0.05, 0)));
+  txtPuntos->setPosition (CEGUI::UVector2 (CEGUI::UDim (0.20,0), CEGUI::UDim (0.01, 0)));
+  CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->addChild(txtPuntos);
+
+  CEGUI::Window* txtMov = CEGUI::WindowManager::getSingleton().createWindow ("TaharezLook/StaticText", "txtMov");
+  s.str("");;
+  s << "Movimiento: [" << _jugadores[_idJugador]->_casillaTiro.x << "," << _jugadores[_idJugador]->_casillaTiro.y << "]";
+  txtMov->setText (s.str());
+  txtMov->setSize (CEGUI::USize (CEGUI::UDim (0.30, 0), CEGUI::UDim (0.05, 0)));
+  txtMov->setPosition (CEGUI::UVector2 (CEGUI::UDim (0.39,0), CEGUI::UDim (0.01, 0)));
+  CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->addChild(txtMov);
+}
+
+void PlayState::actualizaGUIInfo()
+{
+    std::stringstream s;
+    s << "Puntos: " << _jugadores[_idJugador]->_puntuacion;
+    CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("txtPuntos")->setText(s.str());
+    s.str("");
+    s << "Movimiento: [" << _jugadores[_idJugador]->_casillaTiro.x << "," << _jugadores[_idJugador]->_casillaTiro.y << "]";
+    CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("txtMov")->setText(s.str());
 }
 
 bool PlayState::siguiente(const CEGUI::EventArgs &e)
@@ -510,7 +659,7 @@ void PlayState::ponMisilacoTableroDefensa(tipoPlayer tipo)
     Entity *entMisilaco = _sceneMgr->createEntity(m.str(),"misil.mesh");
     nodoAux->attachObject(entMisilaco);
     _sceneMgr->getSceneNode(s.str())->addChild(nodoAux);
-    nodoAux->setPosition(0,0.1,0);
+    nodoAux->setPosition(0,0.2,0);
     nodoAux->rotate(_nodoCursor->getOrientation());
     nodoAux->roll(Ogre::Degree(15));
 }
@@ -525,9 +674,10 @@ void PlayState::ponMisilacoTableroAtaque()
     Entity *entMisilaco = _sceneMgr->createEntity(m.str(),"misil.mesh");
     nodoAux->attachObject(entMisilaco);
     _sceneMgr->getSceneNode(s.str())->addChild(nodoAux);
-    nodoAux->setPosition(0,0.1,0);
+    nodoAux->setPosition(0,-0.2,0);
     nodoAux->rotate(_nodoCursor->getOrientation());
     nodoAux->roll(Ogre::Degree(15));
+    nodoAux->pitch(Ogre::Degree(180));
     
 }
 
@@ -535,6 +685,9 @@ bool PlayState::frameEnded(const Ogre::FrameEvent& evt)
 {
   if (_exitGame)
     return false;
+    
+  if (_volverMenu)
+      changeState(IntroState::getSingletonPtr());
   
   return true;
 }
@@ -605,19 +758,6 @@ void PlayState::mouseMoved(const OIS::MouseEvent &e)
     it = result.begin();
     if (it != result.end()) 
     {
-    /*
-            if (it->movable->getParentSceneNode()->getName() == "Col_Suelo") 
-            {
-              SceneNode *nodeaux = _sceneManager->createSceneNode();
-              int i = rand()%2;   std::stringstream saux;
-              saux << "Cube" << i+1 << ".mesh";
-              Entity *entaux = _sceneManager->createEntity(saux.str());
-              entaux->setQueryFlags(i?CUBE1:CUBE2);
-              nodeaux->attachObject(entaux);
-              nodeaux->translate(r.getPoint(it->distance));
-              _sceneManager->getRootSceneNode()->addChild(nodeaux);
-            }
-    */
       if (_selectedNode != it->movable->getParentSceneNode())
       {
           if (_selectedNode) _selectedNode->showBoundingBox(false);
@@ -631,7 +771,7 @@ void PlayState::mouseMoved(const OIS::MouseEvent &e)
     if (_colocandoBarco)
     {
       if (_selectedNode)
-        _sceneMgr->getSceneNode("nodoCursor")->setPosition(_selectedNode->getPosition());
+        _sceneMgr->getSceneNode("nodoCursor")->setPosition(_selectedNode->getPosition().x,_selectedNode->getPosition().y + 0.1, _selectedNode->getPosition().z);
     }
     else
       if (_nodoCursor)
@@ -654,12 +794,14 @@ void PlayState::mousePressed(const OIS::MouseEvent &e, OIS::MouseButtonID id)
                     {
                        if (_colocandoBarco)
                            if (_selectedNode)
-                               if (static_cast<Humano*>(_jugadores[0])->colocaBarcos(extraePosicionCasilla(_selectedNode->getName()),*_barcoSeleccionado))
+                               if (static_cast<Humano*>(_jugadores[0])->colocaBarcos(extraePosicionCasilla(_selectedNode->getName()),_barcoSeleccionado))
                                {
-                                  addBarcoAlTablero(_jugadores[0],*_barcoSeleccionado);
+                                  //addBarcoAlTablero(_jugadores[0],*_barcoSeleccionado);
+                                  addBarcoAlTablero(_jugadores[0],_barcoSeleccionado);
                                   _colocandoBarco = false;
                                   _jugadores[0]->coutTableroDefensa();      
-                                  actualizaGUIColocacion(_barcoSeleccionado->getTipo());
+                                  //actualizaGUIColocacion(_barcoSeleccionado->getTipo());
+                                  actualizaGUIColocacion(_barcoSeleccionado.getTipo());
                                }
                     }
                     if (id == OIS::MB_Right)
@@ -667,37 +809,51 @@ void PlayState::mousePressed(const OIS::MouseEvent &e, OIS::MouseButtonID id)
                        if (_colocandoBarco)
                        { 
                            _nodoCursor->yaw(Ogre::Degree(90));
-                           switch (_barcoSeleccionado->getOrientacion())
+                           //switch (_barcoSeleccionado->getOrientacion())
+                           switch (_barcoSeleccionado.getOrientacion())
                            {
-                               case horizontal: _barcoSeleccionado->setOrientacion(vertical); break;
-                               case vertical: _barcoSeleccionado->setOrientacion(horizontal);
+                               //case horizontal: _barcoSeleccionado->setOrientacion(vertical); break;
+                               //case vertical: _barcoSeleccionado->setOrientacion(horizontal);
+                               case horizontal: _barcoSeleccionado.setOrientacion(vertical); break;
+                               case vertical: _barcoSeleccionado.setOrientacion(horizontal);
+
                            }
                        }
                     }
                     break;
         
         case jugando:
-                    if (_jugadores[_idJugador]->getTipoJugador() == humano)
+                    if (!hayGanador())
                     {
-                       _jugadores[_idJugador]->_casillaTiro = extraePosicionCasilla(_selectedNode->getName());
-                       if (_jugadores[_idJugador]->_casilleroAtaque[_jugadores[_idJugador]->_casillaTiro.x][_jugadores[_idJugador]->_casillaTiro.y]._estado == neutro)
-                       { 
-                           resultadoTiro res = _jugadores[(_idJugador+1)%2]->resultadoTiroOponente(_jugadores[_idJugador]->_casillaTiro);
-                           ponMisilacoTableroAtaque();
-                           switch (res)
-                           {
-                               case errado: static_cast<Entity *>(_selectedNode->getAttachedObject(0))->getSubEntity(0)->setMaterialName("MaterialAgua");
-                                            _turnoEnCurso = false;
-                                            break;
-                               case tocado: 
-                               case tocadoHundido:static_cast<Entity *>(_selectedNode->getAttachedObject(0))->getSubEntity(0)->setMaterialName("MaterialTocado"); break;
-                               default:;
-                           }
-                           _jugadores[_idJugador]->actualizaTableroAtaque(res);
-                           _jugadores[_idJugador]->coutTableroAtaque();
-                           
-                       }    
+                        if (_jugadores[_idJugador]->getTipoJugador() == humano)
+                        {
+                           _jugadores[_idJugador]->_casillaTiro = extraePosicionCasilla(_selectedNode->getName());
+                           if (_jugadores[_idJugador]->_casilleroAtaque[_jugadores[_idJugador]->_casillaTiro.x][_jugadores[_idJugador]->_casillaTiro.y]._estado == neutro)
+                           { 
+                               _jugadores[_idJugador]->_resultado = _jugadores[(_idJugador+1)%2]->resultadoTiroOponente(_jugadores[_idJugador]->_casillaTiro);
+                               ponMisilacoTableroAtaque();
+                               switch (_jugadores[_idJugador]->_resultado) //res
+                               {
+                                   case errado: static_cast<Entity *>(_selectedNode->getAttachedObject(0))->getSubEntity(0)->setMaterialName("MaterialAgua");
+                                                _enRacha = 1;
+                                                _turnoEnCurso = false;
+                                                break;
+                                   case tocado: 
+                                   case tocadoHundido:static_cast<Entity *>(_selectedNode->getAttachedObject(0))->getSubEntity(0)->setMaterialName("MaterialTocado"); 
+                                                      _enRacha++;
+                                                      if (hayGanador()) 
+                                                          //_estado = fin;
+                                                          _wait = true;
+                                                      break;
+                                   default:;
+                               }
+                               puntua();
+                               _jugadores[_idJugador]->actualizaTableroAtaque(_jugadores[_idJugador]->_resultado);
+                               _jugadores[_idJugador]->coutTableroAtaque();
+                           }    
+                        }
                     }
+                    else _wait = true;
                     break;
         case animando: break;
         case fin:  break;
