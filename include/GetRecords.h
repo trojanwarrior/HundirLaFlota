@@ -33,7 +33,6 @@ using namespace xercesc;
     //Estructura de un record
     struct record 
     {
-      int posicion;
       string nombre;
       int puntuacion;
     };
@@ -53,11 +52,9 @@ class GetRecords
        
        std::vector<record> _records;
 
-       // Internal class use only. Hold Xerces data in UTF-16 SMLCh type.
        XMLCh *TAG_recordSet;
        XMLCh *TAG_record;
        XMLCh *ATTR_nombre;
-       XMLCh *ATTR_posicion;
        XMLCh *ATTR_puntuacion;
 };
 #endif

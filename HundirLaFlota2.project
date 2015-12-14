@@ -43,6 +43,7 @@
     <File Name="src/Humano.cpp"/>
     <File Name="src/Pieza.cpp"/>
     <File Name="src/Cpu.cpp"/>
+    <File Name="src/SetRecords.cpp"/>
   </VirtualDirectory>
   <VirtualDirectory Name="include">
     <File Name="include/GameManager.h"/>
@@ -59,6 +60,7 @@
     <File Name="include/Casilla.h"/>
     <File Name="include/Humano.h"/>
     <File Name="include/Cpu.h"/>
+    <File Name="include/SetRecords.h"/>
   </VirtualDirectory>
   <Dependencies Name="Debug"/>
   <Dependencies Name="Release"/>

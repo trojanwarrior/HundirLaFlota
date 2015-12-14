@@ -6,13 +6,14 @@ Humano::Humano()
     _num_acorazados = 0;
     _num_portaviones = 0;
     _tipo = humano;
-    _heAcabado= false;
+    //_heAcabado= false;
 }
 
 void Humano::mueve()
 {
-    _heAcabado = false;
+    //_heAcabado = false;
 }
+
 
 bool Humano::colocaBarcos(Ogre::Vector2 posCasilla, Barco &barco)
 {
@@ -87,3 +88,7 @@ bool Humano::colocaBarcos(Ogre::Vector2 posCasilla, Barco &barco)
 }
 
 
+tipoPlayer Humano::getTipoJugador()
+{
+    return humano;
+}

@@ -25,7 +25,6 @@
 #include <OIS/OIS.h>
 
 #include "GameState.h"
-#include "PlayManager.h"
 #include "Player.h"
 #include "Humano.h"
 #include "Cpu.h"
@@ -68,6 +67,7 @@ class PlayState : public Ogre::Singleton<PlayState>, public GameState
   bool colocaPortaviones(const CEGUI::EventArgs &e);
   bool colocaAcorazado(const CEGUI::EventArgs &e);
   bool colocaLancha(const CEGUI::EventArgs &e);
+  bool siguiente(const CEGUI::EventArgs &e);
 
 
 
@@ -82,6 +82,7 @@ class PlayState : public Ogre::Singleton<PlayState>, public GameState
   Ogre::Camera* _camera;
   CEGUI::OgreRenderer* _renderer;
   Ogre::Real _deltaT;
+  Ogre::AnimationState *_animState;
 
   void createGUI();
   void createScene();
@@ -89,17 +90,21 @@ class PlayState : public Ogre::Singleton<PlayState>, public GameState
   void createGUIDefensaHumano();
   void createGUIAtaqueHumano();
   void addSceneAtaque();
+  void updateJuegoCpu();
+  void ponMisilacoTableroDefensa(tipoPlayer tipo);
+  void ponMisilacoTableroAtaque();
+  void activaGUINext();
+  void createGUINext();
+  bool hayGanador();
 
   CEGUI::MouseButton convertirBotonMouse(OIS::MouseButtonID id);
 
   bool _exitGame;
 
  private:
-  int _mecer;
   Ogre::Vector3 _vtCamara;                           //Vector de traslación, en principio no se para que lo voy a usar
   Ogre::Vector3 _vtBarco;
   Ogre::Real _tSpeed;                              //Distancia en unidades del mundo virtual que queremos recorrer en un segundo cuando movamos cositas
-  int _r; // para rotar sobre eje Y al barquito
   float _rotCamarax;
   float _rotCamaray;
   RaySceneQuery *_raySceneQuery;
@@ -115,9 +120,13 @@ class PlayState : public Ogre::Singleton<PlayState>, public GameState
   void actualizaGUIColocacion(tipoBarco tipo);
   void addBarcoAlTablero(Player *jugador, Barco barco);
   Barco *_barcoSeleccionado;
-
+  std::vector<Player *> _jugadores;
+  estadoJuego _estado;
+  bool _turnoEnCurso;
+  int _idJugador;
+  bool _wait;
   
-  PlayManager pm;
+  
   
 };
 

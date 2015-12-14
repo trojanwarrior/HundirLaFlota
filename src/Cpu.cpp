@@ -6,7 +6,7 @@ Cpu::Cpu()
     _resultado = errado;
     _tipo = cpu;
     _barcoEncontrado = false;
-    _heAcabado = false;
+    //_heAcabado = false;
 }
 
 Cpu::~Cpu()
@@ -16,6 +16,9 @@ Cpu::~Cpu()
 
 void Cpu::inicializaDirecciones()
 {
+    while(!_pilaDirecciones.empty())
+        _pilaDirecciones.pop();
+        
     _pilaDirecciones.push(Ogre::Vector2(-1,0));  //a la derecha
     _pilaDirecciones.push(Ogre::Vector2(1,0));   //a la izquierda
     _pilaDirecciones.push(Ogre::Vector2(0,1));   //abajo
@@ -24,40 +27,30 @@ void Cpu::inicializaDirecciones()
 
 void Cpu::mueve()
 {
-    _heAcabado=false;
-    switch(_resultado)
+    actualizaTableroAtaque(_resultado); //nulo es un estado de resultado inicial, así que lo ignoramos.
+    switch(_resultado)      // resultado del último tiro, igual a nulo al empezar a jugar.
     {
-        case errado:        actualizaTableroAtaque();
-                            if (!_barcoEncontrado)
+        case nulo:          ataqueAlAzar(); break;
+        case errado:        if (!_barcoEncontrado)
                                 ataqueAlAzar();  
                             else 
-                                sigueAtacando(); break;
-        
+                                sigueAtacando(); 
+                            break;
         case tocadoHundido: _barcoEncontrado = false; //el barco que encontramos lo hemos mandado al fondo del mar, luego habrá que encontrar otro.
                             ataqueAlAzar();  break;
                             
-        case tocado:        sigueAtacando();
-    }
-}
-
-void Cpu::actualizaTableroAtaque()
-{
-    _casilleroAtaque[_casillaTiro.x][_casillaTiro.y]._estado = convierteEstadoTiroAEstadoCasilla(_resultado);
-}
-
-estadoCasilla Cpu::convierteEstadoTiroAEstadoCasilla(resultadoTiro res)
-{
-    switch (res)
-    {
-        case errado: return agua;
-        case tocado:
-        case tocadoHundido: return acierto;
+        case tocado:        _barcoEncontrado = true;
+                            sigueAtacando();
     }
     
-    return neutro;
+    
 }
 
 
+tipoPlayer Cpu::getTipoJugador()
+{
+    return cpu;
+}
 
 void Cpu::colocaBarcos()
 {
@@ -66,13 +59,13 @@ void Cpu::colocaBarcos()
         std::vector<Barco>::iterator it;
         for (it = _barcos.begin(); it != _barcos.end(); ++it)
         {
-            for (size_t y = 0; y < _casilleroDefensa.size(); y ++)
+/*            for (size_t y = 0; y < _casilleroDefensa.size(); y ++)
             {    
                 cout << "\n";
                 for (size_t x = 0; x < _casilleroDefensa[y].size(); x ++)
                     cout << _casilleroDefensa[x][y]._vacia << " ";
             }
-            cout << "\n\n";
+            cout << "\n\n";*/
             
             buscarAlojamiento(*it);
             
@@ -83,7 +76,7 @@ void Cpu::colocaBarcos()
     }
 }
 
-void Cpu::buscarAlojamiento(Barco barco)
+void Cpu::buscarAlojamiento(Barco &barco)
 {
     bool colocado = false;
     int i = rand() % 9;
@@ -181,22 +174,43 @@ void Cpu::buscarAlojamiento(Barco barco)
         j += direccion.y;
         
     }
+    barco.setOrientacion((direccion.x)?horizontal:vertical);
 }
 
 void Cpu::sigueAtacando()
 {
+    
+    
     /// PELIAGUDO :D
     _casillaTiroAnterior = _casillaTiro; // Me guardo el acierto anterior
     
-    // Compruebo si mi dirección actual me saca del tablero, si me saca, quito esa dirección y me coloco en la casilla
-    // donde acerté inicialmente.
-    Ogre::Vector2 dirActual = _pilaDirecciones.top();
-    while (!inBounds(_casillaTiro + _pilaDirecciones.top())) 
-        _pilaDirecciones.pop();
-    if (dirActual != _pilaDirecciones.top())
-        _casillaTiro = _casillaOrigen;
-    
-    _casillaTiro += _pilaDirecciones.top();
+    do
+    {
+        if (_resultado == errado) // Si ultimo resultado es errado, pero entro aquí es que tenía un barco en el punto de mira, luego
+        {
+            _casillaTiro = _casillaOrigen;  // me coloco en la casilla en la que encontré ese barco y
+            _pilaDirecciones.pop();         // la dirección que llevaba ya no es válida pues erré.
+        }
+        
+        if (!_pilaDirecciones.empty()) // Si no he agotado todas las direcciones
+        {
+            // Compruebo si mi dirección actual me saca del tablero, si me saca, quito esa dirección y me coloco en la casilla
+            // donde acerté inicialmente.
+            Ogre::Vector2 dirActual = _pilaDirecciones.top();
+            while (!inBounds(_casillaTiro + _pilaDirecciones.top())) 
+                _pilaDirecciones.pop();
+            if (dirActual != _pilaDirecciones.top())
+                _casillaTiro = _casillaOrigen;
+            
+            _casillaTiro += _pilaDirecciones.top();
+        }
+        else // Si por el contrario he agotado las direcciones posibles. A la porra, tiramos un dado :D
+        {
+            ataqueAlAzar();
+            break;  // Forzamos la salida del while pues ataqueAlAzar() ya se preocupa de proveer una casilla sin explorar.
+        }
+    }
+    while (_casilleroAtaque[_casillaTiro.x][_casillaTiro.y]._estado != neutro);
 }
 
 bool Cpu::inBounds(Ogre::Vector2 posicion)
@@ -208,6 +222,10 @@ void Cpu::ataqueAlAzar()
 {
     bool casillaSinExplorar = false;
     int x, y;
+    
+    //Un ataque al azar implica reiniciar la pila de direcciones.
+    inicializaDirecciones();
+    
     while (!casillaSinExplorar)
     {
         x = rand() % 9;
@@ -218,7 +236,7 @@ void Cpu::ataqueAlAzar()
     }
     
     _casillaTiro = Ogre::Vector2(x,y);
-    // Cuando tire al azar casillaOrigen y casillaTiro valdrán lo mismo. Así si el tiro acierta ya tendré guardada
+    // Cuando tire al azar casillaOrigen y casillaTiro valdrán lo mismo. Así, si el tiro acierta ya tendré guardada
     // la casilla en la que empecé a acertar.
     _casillaOrigen = _casillaTiro;  
 }

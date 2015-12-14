@@ -11,8 +11,9 @@ public:
 
     void mueve();
     bool colocaBarcos(Ogre::Vector2 posCasilla, Barco &barco);
+    tipoPlayer getTipoJugador();
     
-    void actualizaTableroAtaque();
+    void actualizaTableroAtaque(resultadoTiro res);
     void actualizaTableroDefensa();
     
     Ogre::Vector2 _casillaTiro;

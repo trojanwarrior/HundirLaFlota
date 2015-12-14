@@ -110,7 +110,7 @@ void RecordsState::createGUI()
               std::stringstream s,p;
               s << "Text" << i;
               //p << it[i].posicion << ". " << it[i].nombre << "            " << it[i].puntuacion;
-              p << _rec->Records()[i].posicion << ". " << _rec->Records()[i].nombre << "[horz-alignment='right']" << _rec->Records()[i].puntuacion;
+              p << _rec->Records()[i].nombre << "[horz-alignment='right']" << _rec->Records()[i].puntuacion;
               marcoRecords->getChild(s.str())->setText(p.str());
       }    
   }

@@ -11,14 +11,16 @@ typedef std::vector< std::vector<Casilla> > Casillero_t;
 enum tipoPlayer
 {
     humano,
-    cpu
+    cpu,
+    unknown
 };
 
 enum resultadoTiro
 {
     errado,  //inicializamos con este resultado, así forzamos a la CPU a empezar con un tiro aleatorio
     tocado,
-    tocadoHundido
+    tocadoHundido,
+    nulo
 };
 
 class Player
@@ -40,10 +42,17 @@ public:
     
     virtual void mueve() {cout << "metodo virtual 'mueve' clase base, no hace nada \n";}
     virtual void colocaBarcos() { cout << "metodo virtual 'colocaBarcos' clase base, no hace nada \n"; }
+    virtual tipoPlayer getTipoJugador(){return unknown;}
+    const char* getNombreTipoJugador();
+    
     resultadoTiro resultadoTiroOponente(Ogre::Vector2 tiro);
-    
+    estadoCasilla convierteEstadoTiroAEstadoCasilla(resultadoTiro res);
+    void actualizaTableroAtaque(resultadoTiro res);
+    void coutTableroDefensa();
+    void coutTableroAtaque();
+    char codigoEstadoCasilla(estadoCasilla e);
     void AddBarco(tipoBarco tipo);
-    
+    bool hePerdido();
 
     std::vector<Barco> _barcos;
     Casillero_t _casilleroAtaque;
@@ -54,7 +63,7 @@ public:
     int _num_acorazados;
     int _num_portaviones;
     tipoPlayer _tipo;
-    bool _heAcabado;
+    resultadoTiro _resultado;
     
     Ogre::Vector2 _casillaOrigen;           //Posición de la casilla donde tiramos al principio de una jugada, coincidirá con _casillaTiro al principio de una jugada
     Ogre::Vector2 _casillaTiro;             //Posición elegida para hacer un tiro.

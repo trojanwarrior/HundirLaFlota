@@ -8,7 +8,8 @@ enum estadoCasilla
 {
     neutro,
     agua,
-    acierto
+    acierto,
+    aSaber
 };
 
 class Casilla

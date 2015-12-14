@@ -35,10 +35,9 @@ GetRecords::GetRecords()
 
    // Tags and attributes used in XML file.
    // Can't call transcode till after Xerces Initialize()
-   TAG_recordSet        = XMLString::transcode("record_set");
-   TAG_record = XMLString::transcode("record");
+   TAG_recordSet = XMLString::transcode("record_set");
+   TAG_record =  XMLString::transcode("record");
    ATTR_nombre = XMLString::transcode("nombre");
-   ATTR_posicion = XMLString::transcode("posicion");
    ATTR_puntuacion = XMLString::transcode("puntuacion");
 
    _recordFileParser = new XercesDOMParser;
@@ -61,7 +60,6 @@ GetRecords::~GetRecords()
 
       XMLString::release( &TAG_record );
       XMLString::release( &ATTR_nombre );
-      XMLString::release( &ATTR_posicion );
       XMLString::release( &ATTR_puntuacion);
    }
    catch( ... )
@@ -85,12 +83,8 @@ GetRecords::~GetRecords()
 }
 
 /**
- *  This function:
- *  - Tests the access and availability of the XML configuration file.
- *  - Configures the xerces-c DOM parser.
- *  - Reads and extracts the pertinent information from the XML config file.
  *
- *  @param in configFile The text string name of the HLA configuration file.
+ *  @param fichero de records a leer.
  */
 void GetRecords::readRecords(string& rutaRecords) throw( std::runtime_error )
 {
@@ -149,10 +143,7 @@ void GetRecords::readRecords(string& rutaRecords) throw( std::runtime_error )
             DOMElement* currentElement = dynamic_cast< xercesc::DOMElement* >( currentNode );
             if( XMLString::equals(currentElement->getTagName(),TAG_record))
             {
-               // Already tested node as type element and of name "record".
-               // Read attributes of element "ApplicationSettings".
                 record r;
-                r.posicion = atoi(XMLString::transcode(currentElement->getAttribute(ATTR_posicion)));
                 r.puntuacion = atoi(XMLString::transcode(currentElement->getAttribute(ATTR_puntuacion)));
                 r.nombre = XMLString::transcode(currentElement->getAttribute(ATTR_nombre));
                 _records.push_back(r);
