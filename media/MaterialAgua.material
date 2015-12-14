@@ -1,0 +1,35 @@
+// MaterialAgua genrated by blender2ogre 0.6.0
+
+material MaterialAgua 
+{
+    receive_shadows on 
+
+    technique
+    {
+        pass MaterialAgua
+        {
+            ambient 0.0 0.8000000715255737 0.7173446416854858 1.0
+            diffuse 0.0 0.8000000715255737 0.7173446416854858 1.0
+            specular 0.06651957123876961 0.7322580814361572 0.7322580814361572 1.0 24.75
+            emissive 0.0 0.7200000452995283 0.6456101604141082 1.0
+
+            alpha_to_coverage off
+            colour_write on
+            cull_hardware clockwise
+            depth_check on
+            depth_func less_equal
+            depth_write on
+            illumination_stage 
+            light_clip_planes off
+            light_scissor off
+            lighting on
+            normalise_normals off
+            polygon_mode solid
+            scene_blend one zero
+            scene_blend_op add
+            shading gouraud
+            transparent_sorting on
+
+        }
+    }
+}
