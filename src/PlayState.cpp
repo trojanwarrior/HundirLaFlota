@@ -657,6 +657,7 @@ void PlayState::ponMisilacoTableroDefensa(tipoPlayer tipo)
     SceneNode *nodoAux = _sceneMgr->createSceneNode(t.str());
     m << aux.str() << _jugadores[_idJugador]->_casillaTiro.x << "_" << _jugadores[_idJugador]->_casillaTiro.y;
     Entity *entMisilaco = _sceneMgr->createEntity(m.str(),"misil.mesh");
+    entMisilaco->setQueryFlags(MISIL);
     nodoAux->attachObject(entMisilaco);
     _sceneMgr->getSceneNode(s.str())->addChild(nodoAux);
     nodoAux->setPosition(0,0.2,0);
@@ -672,6 +673,7 @@ void PlayState::ponMisilacoTableroAtaque()
     SceneNode *nodoAux = _sceneMgr->createSceneNode(t.str());
     m << "humaMis_" << _jugadores[_idJugador]->_casillaTiro.x << "_" << _jugadores[_idJugador]->_casillaTiro.y;
     Entity *entMisilaco = _sceneMgr->createEntity(m.str(),"misil.mesh");
+    entMisilaco->setQueryFlags(MISIL);
     nodoAux->attachObject(entMisilaco);
     _sceneMgr->getSceneNode(s.str())->addChild(nodoAux);
     nodoAux->setPosition(0,-0.2,0);

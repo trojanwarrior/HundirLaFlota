@@ -44,6 +44,7 @@
     <File Name="src/Pieza.cpp"/>
     <File Name="src/Cpu.cpp"/>
     <File Name="src/SetRecords.cpp"/>
+    <File Name="../filosofos/FilosofoThread.cpp"/>
   </VirtualDirectory>
   <VirtualDirectory Name="include">
     <File Name="include/GameManager.h"/>
@@ -61,6 +62,7 @@
     <File Name="include/Humano.h"/>
     <File Name="include/Cpu.h"/>
     <File Name="include/SetRecords.h"/>
+    <File Name="../filosofos/FilosofoThread.h"/>
   </VirtualDirectory>
   <Dependencies Name="Debug"/>
   <Dependencies Name="Release"/>

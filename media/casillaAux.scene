@@ -1,0 +1,67 @@
+<scene export_time="1450023005.4851391" formatVersion="1.0.1" exported_by="twsh" previous_export_time="1449938038.1126297" >
+  <nodes >
+    <node name="CasillaAux" >
+      <position z="-0.000000" y="0.000000" x="0.000000" />
+      <rotation qx="0.000000" qw="1.000000" qz="-0.000000" qy="0.000000" />
+      <scale z="1.000000" y="1.000000" x="1.000000" />
+      <game >
+        <sensors />
+        <actuators />
+      </game>
+      <entity lock_trans_x="False" inertia_tensor="0.4000000059604645" actor="False" name="CasillaAux" meshFile="CasillaAux.mesh" ghost="False" friction_z="1.0" lock_trans_z="False" velocity_max="0.0" lock_rot_z="False" friction_y="1.0" friction_x="1.0" lock_trans_y="False" damping_trans="0.03999999910593033" lock_rot_y="False" mass="1.0" damping_rot="0.10000000149011612" anisotropic_friction="False" physics_type="STATIC" velocity_min="0.0" lock_rot_x="False" mass_radius="1.0" />
+    </node>
+    <node name="Point" >
+      <position z="-1.000000" y="5.000000" x="1.000000" />
+      <rotation qx="0.000000" qw="1.000000" qz="-0.000000" qy="0.000000" />
+      <scale z="1.000000" y="1.000000" x="1.000000" />
+      <game >
+        <sensors />
+        <actuators />
+      </game>
+      <light powerScale="1.0" type="point" name="Point" >
+        <position z="-1.000000" y="5.000000" x="1.000000" />
+        <lightAttenuation linear="0.04" range="5000" quadratic="0.0" constant="1.0" />
+        <colourDiffuse b="1.0" r="1.0" g="1.0" />
+        <colourSpecular b="1.0" r="1.0" g="1.0" />
+      </light>
+    </node>
+    <node name="Lamp" >
+      <position z="-1.005454" y="5.903862" x="4.076245" />
+      <rotation qx="0.169076" qw="0.570947" qz="-0.272171" qy="0.755880" />
+      <scale z="1.000000" y="1.000000" x="1.000000" />
+      <game >
+        <sensors />
+        <actuators />
+      </game>
+      <light powerScale="1.0" type="point" name="Lamp" shadow="true" >
+        <position z="-1.005454" y="5.903862" x="4.076245" />
+        <lightAttenuation linear="0.03333335240683057" range="5000" quadratic="0.0" constant="1.0" />
+        <colourDiffuse b="1.0" r="1.0" g="1.0" />
+        <colourSpecular b="1.0" r="1.0" g="1.0" />
+        <colourShadow b="1.0" r="1.0" g="1.0" />
+      </light>
+    </node>
+    <node name="Camera" >
+      <position z="19.000000" y="17.000000" x="0.000000" />
+      <rotation qx="0.382683" qw="0.923880" qz="-0.000000" qy="0.000000" />
+      <scale z="1.000000" y="1.000000" x="1.000000" />
+      <game >
+        <sensors />
+        <actuators />
+      </game>
+      <camera fov="0.5033799435163735" name="Camera" projectionType="perspective" >
+        <clipping nearPlaneDist="0.10000000149011612" near="0.10000000149011612" farPlaneDist="100.0" far="100.0" />
+      </camera>
+    </node>
+  </nodes>
+  <externals >
+    <item type="material" >
+      <file name="/home/twsh/desarrollo/codelite/HundirLaFlota2/media/MaterialTocado.material" />
+    </item>
+  </externals>
+  <environment >
+    <colourAmbient b="0.0" r="0.0" g="0.0" />
+    <colourDiffuse b="0.05087608844041824" r="0.05087608844041824" g="0.05087608844041824" />
+    <colourBackground b="0.05087608844041824" r="0.05087608844041824" g="0.05087608844041824" />
+  </environment>
+</scene>

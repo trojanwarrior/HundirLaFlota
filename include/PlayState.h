@@ -33,6 +33,7 @@
 #define STAGE   1 << 0 // mascara para el escenario
 #define BARCO   1 << 1 // mascara para un barco, en realidad será una casilla donde haya un trozo de barco
 #define CASILLA 1 << 2
+#define MISIL   1 << 3
 
 #define PUNTOS_TOCADO 10
 #define PUNTOS_HUNDIDO 50

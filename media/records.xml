@@ -3,6 +3,8 @@
 
   <record nombre="Mario" puntuacion="3340"/>
 
+  <record nombre="GANADOR" puntuacion="2400"/>
+
   <record nombre="maquina" puntuacion="1100"/>
 
   <record nombre="temp" puntuacion="1100"/>
